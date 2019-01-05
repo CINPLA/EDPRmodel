@@ -1,8 +1,17 @@
 language: python
 python:
   - "2.7"
+
+notifications:
+  email:
+    recipients:
+      - m.j.satra@fys.uio.no
+    on_success: never
+    on_failure: never
+
 install:
   - pip install scipy
   - pip install matplotlib
+
 script:
   - python -m pytest
