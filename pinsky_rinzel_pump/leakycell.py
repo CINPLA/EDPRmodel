@@ -300,3 +300,5 @@ if __name__ == "__main__":
     plt.plot(t, Cl_si+Cl_se+Cl_di+Cl_de, label='tot')
     plt.legend()
     plt.show()
+
+    print np.round((Na_si*my_cell.V_si + Na_se*my_cell.V_se + Na_di*my_cell.V_di + Na_de*my_cell.V_de) * my_cell.F)
