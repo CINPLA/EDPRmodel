@@ -16,8 +16,8 @@ def test_modules():
     assert test_cell.total_charge( \
         [10, 10, 20], 10) == 0 
 
-def test_ion_conservation():
-    """Tests that no ions disappear."""
+def test_charge_conservation():
+    """Tests that no charge disappear."""
     
     EPS = 1e-14
 
