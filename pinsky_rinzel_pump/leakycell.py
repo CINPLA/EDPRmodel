@@ -50,15 +50,15 @@ class LeakyCell():
         self.C_dm = 3e-2 # Pinsky and Rinzel, 1994
        
         # volumes and areas [m]
-        self.A_s = 5e-10
-        self.A_d = 5e-10 
-        self.A_e = 1e-10
-        self.A_i = 1e-10
-        self.V_si = 1e-15
-        self.V_se = 1e-15
-        self.V_di = 1e-15
-        self.V_de = 1e-15
-        self.dx = 10e-6
+        self.A_s = 9e-6
+        self.A_d = 9e-6 
+        self.A_i = 3e-6
+        self.A_e = 3e-6
+        self.V_si = 2e-6
+        self.V_di = 2e-6
+        self.V_se = 1e-6
+        self.V_de = 1e-6
+        self.dx = 667e-6
 
         # diffusion constants
         self.D_Na = 1.33e-9 # Halnes et al. 2013
