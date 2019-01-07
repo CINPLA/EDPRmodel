@@ -55,31 +55,6 @@ class LeakyCell():
         self.g_K_leak = 0.5
         self.g_Cl_leak = 1.0
 
-    def nernst_potential(self, Z, k_i, k_e):
-        E = self.R*self.T / (Z*self.F) * np.log(k_e / k_i)
-        return E
-
-    def j_k_diff(self, D_k, tortuosity, k_s, k_d):
-        j = - D_k * (k_d - k_s) / (tortuosity**2 * self.dx)
-        return j
-
-    def j_k_drift(self, D_k, Z_k, tortuosity, k_s, k_d, phi_s, phi_d):
-        j = - D_k * self.F * Z_k * (k_d + k_s) * (phi_d - phi_s) / (2 * tortuosity**2 * self.R * self.T * self.dx)
-        return j
-
-    def sigma_k(self, D_k, Z_k, tortuosity, k_s, k_d): 
-        # axial conductivity
-        sigma = self.F**2 * D_k * Z_k**2 * (k_d + k_s) / (2 * self.R * self.T * tortuosity**2)
-        return sigma
-
-    def Q(self, k, V):
-        Z_k = [self.Z_Na, self.Z_K, self.Z_Cl]
-        q = 0
-        for i in range(0, 3):
-            q += Z_k[i]*k[i]
-        q = self.F*q*V
-        return q
-
     def j_Na_s(self, phi_sm, E_Na_s):
         i_Na_s = self.g_Na_leak*(phi_sm - E_Na_s) / (self.F*self.Z_Na)
         return i_Na_s
@@ -104,8 +79,40 @@ class LeakyCell():
         i_Cl_d = self.g_Cl_leak*(phi_dm - E_Cl_d) / (self.F*self.Z_Cl)
         return i_Cl_d
 
-    def membrane_potentials(self):
+    def j_k_diff(self, D_k, tortuosity, k_s, k_d):
+        j = - D_k * (k_d - k_s) / (tortuosity**2 * self.dx)
+        return j
 
+    def j_k_drift(self, D_k, Z_k, tortuosity, k_s, k_d, phi_s, phi_d):
+        j = - D_k * self.F * Z_k * (k_d + k_s) * (phi_d - phi_s) / (2 * tortuosity**2 * self.R * self.T * self.dx)
+        return j
+
+    def conductivity_k(self, D_k, Z_k, tortuosity, k_s, k_d): 
+        sigma = self.F**2 * D_k * Z_k**2 * (k_d + k_s) / (2 * self.R * self.T * tortuosity**2)
+        return sigma
+
+    def total_charge(self, k, V):
+        Z_k = [self.Z_Na, self.Z_K, self.Z_Cl]
+        q = 0
+        for i in range(0, 3):
+            q += Z_k[i]*k[i]
+        q = self.F*q*V
+        return q
+
+    def nernst_potential(self, Z, k_i, k_e):
+        E = self.R*self.T / (Z*self.F) * np.log(k_e / k_i)
+        return E
+
+    def reversal_potentials(self):
+        E_Na_s = self.nernst_potential(self.Z_Na, self.Na_si, self.Na_se)
+        E_Na_d = self.nernst_potential(self.Z_Na, self.Na_di, self.Na_de)
+        E_K_s = self.nernst_potential(self.Z_K, self.K_si, self.K_se)
+        E_K_d = self.nernst_potential(self.Z_K, self.K_di, self.K_de)
+        E_Cl_s = self.nernst_potential(self.Z_Cl, self.Cl_si, self.Cl_se)
+        E_Cl_d = self.nernst_potential(self.Z_Cl, self.Cl_di, self.Cl_de)
+        return E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d
+
+    def membrane_potentials(self):
         I_i_diff = self.F * (self.Z_Na*self.j_k_diff(self.D_Na, self.lamda_i, self.Na_si, self.Na_di) \
             + self.Z_K*self.j_k_diff(self.D_K, self.lamda_i, self.K_si, self.K_di) \
             + self.Z_Cl*self.j_k_diff(self.D_Cl, self.lamda_i, self.Cl_si, self.Cl_di))
@@ -113,37 +120,26 @@ class LeakyCell():
             + self.Z_K*self.j_k_diff(self.D_K, self.lamda_e, self.K_se, self.K_de) \
             + self.Z_Cl*self.j_k_diff(self.D_Cl, self.lamda_e, self.Cl_se, self.Cl_de))
 
-        sigma_i = self.sigma_k(self.D_Na, self.Z_Na, self.lamda_i, self.Na_si, self.Na_di) \
-            + self.sigma_k(self.D_K, self.Z_K, self.lamda_i, self.K_si, self.K_di) \
-            + self.sigma_k(self.D_Cl, self.Z_Cl, self.lamda_i, self.Cl_si, self.Cl_di)
-        sigma_e = self.sigma_k(self.D_Na, self.Z_Na, self.lamda_e, self.Na_se, self.Na_de) \
-            + self.sigma_k(self.D_K, self.Z_K, self.lamda_e, self.K_se, self.K_de) \
-            + self.sigma_k(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de)
+        sigma_i = self.conductivity(self.D_Na, self.Z_Na, self.lamda_i, self.Na_si, self.Na_di) \
+            + self.conductivity_k(self.D_K, self.Z_K, self.lamda_i, self.K_si, self.K_di) \
+            + self.conductivity_k(self.D_Cl, self.Z_Cl, self.lamda_i, self.Cl_si, self.Cl_di)
+        sigma_e = self.conductivity_k(self.D_Na, self.Z_Na, self.lamda_e, self.Na_se, self.Na_de) \
+            + self.conductivity_k(self.D_K, self.Z_K, self.lamda_e, self.K_se, self.K_de) \
+            + self.conductivity_k(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de)
 
-        Q_di = self.Q([self.Na_di, self.K_di, self.Cl_di], self.V_di)
-        Q_si = self.Q([self.Na_si, self.K_si, self.Cl_si], self.V_si)
+        q_di = self.total_charge([self.Na_di, self.K_di, self.Cl_di], self.V_di)
+        q_si = self.total_charge([self.Na_si, self.K_si, self.Cl_si], self.V_si)
 
-        phi_di = Q_di / (self.C_dm * self.A_d)
-        phi_se = (phi_di - self.dx * I_i_diff / sigma_i - self.A_e * self.V_si * self.dx * I_e_diff / (self.V_se * self.A_i * sigma_i) - Q_si / (self.C_sm * self.A_s)) / (1 + self.A_e*self.V_si*sigma_e/(self.V_se*self.A_i*sigma_i))
-        phi_si = Q_si / (self.C_sm * self.A_s) + phi_se
+        phi_di = q_di / (self.C_dm * self.A_d)
+        phi_se = (phi_di - self.dx * I_i_diff / sigma_i - self.A_e * self.V_si * self.dx * I_e_diff / (self.V_se * self.A_i * sigma_i) - q_si / (self.C_sm * self.A_s)) / (1 + self.A_e*self.V_si*sigma_e/(self.V_se*self.A_i*sigma_i))
+        phi_si = q_si / (self.C_sm * self.A_s) + phi_se
         phi_de = 0
         phi_sm = phi_si - phi_se
         phi_dm = phi_di - phi_de
 
         return phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm
 
-    def reversal_potentials(self):
-        
-        E_Na_s = self.nernst_potential(self.Z_Na, self.Na_si, self.Na_se)
-        E_Na_d = self.nernst_potential(self.Z_Na, self.Na_di, self.Na_de)
-        E_K_s = self.nernst_potential(self.Z_K, self.K_si, self.K_se)
-        E_K_d = self.nernst_potential(self.Z_K, self.K_di, self.K_de)
-        E_Cl_s = self.nernst_potential(self.Z_Cl, self.Cl_si, self.Cl_se)
-        E_Cl_d = self.nernst_potential(self.Z_Cl, self.Cl_di, self.Cl_de)
-
-        return E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d
-
-    def dKdt(self):
+    def dkdt(self):
        
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = self.membrane_potentials()
         E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = self.reversal_potentials()
@@ -195,12 +191,12 @@ if __name__ == "__main__":
 
         my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
 
-        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de = my_cell.dKdt()
+        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de = my_cell.dkdt()
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
     
     start_time = time.time()
-    t_span = (0, 300)
+    t_span = (0, 10)
 
     Na_si0 = 15.
     Na_se0 = 145.
