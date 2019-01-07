@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import time
 
 class LeakyCell(): 
+    """A four compartment cell model (soma + dendrite, both internal and external space) 
+    with Na, K, and Cl leak currents.
+    """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de):
         self.T = T
@@ -52,78 +55,76 @@ class LeakyCell():
         self.g_K_leak = 0.5
         self.g_Cl_leak = 1.0
 
-        self.D_k = [self.D_Na, self.D_K, self.D_Cl]
-        self.Z_k = [self.Z_Na, self.Z_K, self.Z_Cl]
-        self.k_di = [Na_di, K_di, Cl_di]
-        self.k_si = [Na_si, K_si, Cl_si]
-        self.k_de = [Na_de, K_de, Cl_de]
-        self.k_se = [Na_se, K_se, Cl_se]
-
     def nernst_potential(self, Z, k_i, k_e):
         E = self.R*self.T / (Z*self.F) * np.log(k_e / k_i)
         return E
 
-    def I_diff(self, tortuosity, k_d, k_s):
-        diff_sum = 0
-        for k in range(0,len(self.D_k)):
-            diff_sum += self.D_k[k] * self.Z_k[k] * (k_d[k] - k_s[k])
-        I = self.F * diff_sum / (tortuosity**2 * self.dx)
-        return I
-
-    def sigma(self, tortuosity, k_d, k_s):
-        sigma_sum = 0
-        for k in range(0, len(self.D_k)):
-            sigma_sum += self.D_k[k] * self.Z_k[k]**2 * (k_d[k] + k_s[k]) / 2
-        s = self.F**2 * sigma_sum / (self.R*self.T*tortuosity**2)
-        return s
-
-    def nernst_planck(self, D, Z, k_d, k_s, tortuosity, phi_d, phi_s):
-        j = -D * (k_d - k_s) / (tortuosity**2 * self.dx) - D*Z*self.F*(k_d + k_s)*(phi_d - phi_s)/(2*tortuosity**2*self.R*self.T*self.dx)
+    def j_k_diff(self, D_k, tortuosity, k_s, k_d):
+        j = - D_k * (k_d - k_s) / (tortuosity**2 * self.dx)
         return j
 
+    def j_k_drift(self, D_k, Z_k, tortuosity, k_s, k_d, phi_s, phi_d):
+        j = - D_k * self.F * Z_k * (k_d + k_s) * (phi_d - phi_s) / (2 * tortuosity**2 * self.R * self.T * self.dx)
+        return j
+
+    def sigma_k(self, D_k, Z_k, tortuosity, k_s, k_d): 
+        # axial conductivity
+        sigma = self.F**2 * D_k * Z_k**2 * (k_d + k_s) / (2 * self.R * self.T * tortuosity**2)
+        return sigma
+
     def Q(self, k, V):
+        Z_k = [self.Z_Na, self.Z_K, self.Z_Cl]
         q = 0
-        for i in range(0, len(self.Z_k)):
-            q += self.Z_k[i]*k[i]
+        for i in range(0, 3):
+            q += Z_k[i]*k[i]
         q = self.F*q*V
         return q
 
-    def i_Na_s(self, phi_sm, E_Na_s):
-        i_Na_s = self.g_Na_leak*(phi_sm - E_Na_s)
+    def j_Na_s(self, phi_sm, E_Na_s):
+        i_Na_s = self.g_Na_leak*(phi_sm - E_Na_s) / (self.F*self.Z_Na)
         return i_Na_s
 
-    def i_K_s(self, phi_sm, E_K_s):
-        i_K_s = self.g_K_leak*(phi_sm - E_K_s)
+    def j_K_s(self, phi_sm, E_K_s):
+        i_K_s = self.g_K_leak*(phi_sm - E_K_s) / (self.F*self.Z_K)
         return i_K_s
 
-    def i_Cl_s(self, phi_sm, E_Cl_s):
-        i_Cl_s = self.g_Cl_leak*(phi_sm - E_Cl_s)
+    def j_Cl_s(self, phi_sm, E_Cl_s):
+        i_Cl_s = self.g_Cl_leak*(phi_sm - E_Cl_s) / (self.F*self.Z_Cl)
         return i_Cl_s
 
-    def i_Na_d(self, phi_dm, E_Na_d):
-        i_Na_d = self.g_Na_leak*(phi_dm - E_Na_d)
+    def j_Na_d(self, phi_dm, E_Na_d):
+        i_Na_d = self.g_Na_leak*(phi_dm - E_Na_d) / (self.F*self.Z_Na)
         return i_Na_d
 
-    def i_K_d(self, phi_dm, E_K_d):
-        i_K_d = self.g_K_leak*(phi_dm - E_K_d)    
+    def j_K_d(self, phi_dm, E_K_d):
+        i_K_d = self.g_K_leak*(phi_dm - E_K_d) / (self.F*self.Z_K)    
         return i_K_d
 
-    def i_Cl_d(self, phi_dm, E_Cl_d):
-        i_Cl_d = self.g_Cl_leak*(phi_dm - E_Cl_d)
+    def j_Cl_d(self, phi_dm, E_Cl_d):
+        i_Cl_d = self.g_Cl_leak*(phi_dm - E_Cl_d) / (self.F*self.Z_Cl)
         return i_Cl_d
 
     def membrane_potentials(self):
 
-        I_i_diff = self.I_diff(self.lamda_i, self.k_di, self.k_si) 
-        I_e_diff = self.I_diff(self.lamda_e, self.k_de, self.k_se) 
-        sigma_i = self.sigma(self.lamda_i, self.k_di, self.k_si)
-        sigma_e = self.sigma(self.lamda_e, self.k_de, self.k_se)
+        I_i_diff = self.F * (self.Z_Na*self.j_k_diff(self.D_Na, self.lamda_i, self.Na_si, self.Na_di) \
+            + self.Z_K*self.j_k_diff(self.D_K, self.lamda_i, self.K_si, self.K_di) \
+            + self.Z_Cl*self.j_k_diff(self.D_Cl, self.lamda_i, self.Cl_si, self.Cl_di))
+        I_e_diff = self.F * (self.Z_Na*self.j_k_diff(self.D_Na, self.lamda_e, self.Na_se, self.Na_de) \
+            + self.Z_K*self.j_k_diff(self.D_K, self.lamda_e, self.K_se, self.K_de) \
+            + self.Z_Cl*self.j_k_diff(self.D_Cl, self.lamda_e, self.Cl_se, self.Cl_de))
 
-        Q_di = self.Q(self.k_di, self.V_di)
-        Q_si = self.Q(self.k_si, self.V_si)
+        sigma_i = self.sigma_k(self.D_Na, self.Z_Na, self.lamda_i, self.Na_si, self.Na_di) \
+            + self.sigma_k(self.D_K, self.Z_K, self.lamda_i, self.K_si, self.K_di) \
+            + self.sigma_k(self.D_Cl, self.Z_Cl, self.lamda_i, self.Cl_si, self.Cl_di)
+        sigma_e = self.sigma_k(self.D_Na, self.Z_Na, self.lamda_e, self.Na_se, self.Na_de) \
+            + self.sigma_k(self.D_K, self.Z_K, self.lamda_e, self.K_se, self.K_de) \
+            + self.sigma_k(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de)
+
+        Q_di = self.Q([self.Na_di, self.K_di, self.Cl_di], self.V_di)
+        Q_si = self.Q([self.Na_si, self.K_si, self.Cl_si], self.V_si)
 
         phi_di = Q_di / (self.C_dm * self.A_d)
-        phi_se = (self.dx * I_i_diff / sigma_i + self.A_e * self.V_si * self.dx * I_e_diff / (self.V_se * self.A_i * sigma_i) + phi_di - Q_si / (self.C_sm * self.A_s)) / (1 + self.A_e*self.V_si*sigma_e/(self.V_se*self.A_i*sigma_i))
+        phi_se = (phi_di - self.dx * I_i_diff / sigma_i - self.A_e * self.V_si * self.dx * I_e_diff / (self.V_se * self.A_i * sigma_i) - Q_si / (self.C_sm * self.A_s)) / (1 + self.A_e*self.V_si*sigma_e/(self.V_se*self.A_i*sigma_i))
         phi_si = Q_si / (self.C_sm * self.A_s) + phi_se
         phi_de = 0
         phi_sm = phi_si - phi_se
@@ -147,29 +148,27 @@ class LeakyCell():
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = self.membrane_potentials()
         E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = self.reversal_potentials()
 
-        I_Na_s = self.i_Na_s(phi_sm, E_Na_s)
-        I_K_s = self.i_K_s(phi_sm, E_K_s)
-        I_Cl_s = self.i_Cl_s(phi_sm, E_Cl_s)
+        j_Na_sm = self.j_Na_s(phi_sm, E_Na_s)
+        j_K_sm = self.j_K_s(phi_sm, E_K_s)
+        j_Cl_sm = self.j_Cl_s(phi_sm, E_Cl_s)
 
-        I_Na_d = self.i_Na_d(phi_dm, E_Na_d)
-        I_K_d = self.i_K_d(phi_dm, E_K_d)    
-        I_Cl_d = self.i_Cl_d(phi_dm, E_Cl_d)
+        j_Na_dm = self.j_Na_s(phi_dm, E_Na_d)
+        j_K_dm = self.j_K_d(phi_dm, E_K_d)    
+        j_Cl_dm = self.j_Cl_d(phi_dm, E_Cl_d)
 
-        j_Na_sm = I_Na_s / (self.F*self.Z_Na)
-        j_K_sm = I_K_s / (self.F*self.Z_K) 
-        j_Cl_sm = I_Cl_s / (self.F*self.Z_Cl)  
+        j_Na_i = self.j_k_diff(self.D_Na, self.lamda_i, self.Na_si, self.Na_di) \
+            + self.j_k_drift(self.D_Na, self.Z_Na, self.lamda_i, self.Na_si, self.Na_di, phi_si, phi_di) 
+        j_K_i = self.j_k_diff(self.D_K, self.lamda_i, self.K_si, self.K_di) \
+            + self.j_k_drift(self.D_K, self.Z_K, self.lamda_i, self.K_si, self.K_di, phi_si, phi_di)
+        j_Cl_i = self.j_k_diff(self.D_Cl, self.lamda_i, self.Cl_si, self.Cl_di) \
+            + self.j_k_drift(self.D_Cl, self.Z_Cl, self.lamda_i, self.Cl_si, self.Cl_di, phi_si, phi_di)
 
-        j_Na_dm = I_Na_d / (self.F*self.Z_Na)
-        j_K_dm = I_K_d / (self.F*self.Z_K) 
-        j_Cl_dm = I_Cl_d / (self.F*self.Z_Cl)
-
-        j_Na_i = self.nernst_planck(self.D_Na, self.Z_Na, self.Na_di, self.Na_si, self.lamda_i, phi_di, phi_si)
-        j_K_i = self.nernst_planck(self.D_K, self.Z_K, self.K_di, self.K_si, self.lamda_i, phi_di, phi_si)
-        j_Cl_i = self.nernst_planck(self.D_Cl, self.Z_Cl, self.Cl_di, self.Cl_si, self.lamda_i, phi_di, phi_si)
-
-        j_Na_e = self.nernst_planck(self.D_Na, self.Z_Na, self.Na_de, self.Na_se, self.lamda_e, phi_de, phi_se)
-        j_K_e = self.nernst_planck(self.D_K, self.Z_K, self.K_de, self.K_se, self.lamda_e, phi_de, phi_se)
-        j_Cl_e = self.nernst_planck(self.D_Cl, self.Z_Cl, self.Cl_de, self.Cl_se, self.lamda_e, phi_de, phi_se)
+        j_Na_e = self.j_k_diff(self.D_Na, self.lamda_e, self.Na_se, self.Na_de) \
+            + self.j_k_drift(self.D_Na, self.Z_Na, self.lamda_e, self.Na_se, self.Na_de, phi_se, phi_de)
+        j_K_e = self.j_k_diff(self.D_K, self.lamda_e, self.K_se, self.K_de) \
+            + self.j_k_drift(self.D_K, self.Z_K, self.lamda_e, self.K_se, self.K_de, phi_se, phi_de)
+        j_Cl_e = self.j_k_diff(self.D_Cl, self.lamda_e, self.Cl_se, self.Cl_de) \
+            + self.j_k_drift(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de, phi_se, phi_de)
 
         dNadt_si = -j_Na_sm*(self.A_s / self.V_si) - j_Na_i*(self.A_i / self.V_si)
         dNadt_di = -j_Na_dm*(self.A_d / self.V_di) + j_Na_i*(self.A_i / self.V_di)
@@ -188,9 +187,6 @@ class LeakyCell():
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
 
-    def hello(self):
-        print "Hello World!"
-
 if __name__ == "__main__":
 
     def dkdt(t,k):
@@ -204,7 +200,7 @@ if __name__ == "__main__":
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
     
     start_time = time.time()
-    t_span = (0, 10800)
+    t_span = (0, 300)
 
     Na_si0 = 15.
     Na_se0 = 145.
@@ -280,4 +276,3 @@ if __name__ == "__main__":
     plt.plot(t, Cl_si+Cl_se+Cl_di+Cl_de, label='tot')
     plt.legend()
     plt.show()
-
