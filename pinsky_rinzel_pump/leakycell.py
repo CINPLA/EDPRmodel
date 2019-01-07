@@ -1,5 +1,4 @@
 import numpy as np
-from numpy import exp
 from math import fsum
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
