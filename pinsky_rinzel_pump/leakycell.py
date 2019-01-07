@@ -7,10 +7,31 @@ import time
 class LeakyCell(): 
     """A four compartment cell model (soma + dendrite, both internal and external space) 
     with Na, K, and Cl leak currents.
+
+    Methods:
+        constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
+        j_Na_s(phi_sm, E_Na_s): compute the Na flux across the soma membrane
+        j_K_s(phi_sm, E_K_s): compute the K flux across the soma membrane
+        j_Cl_s(phi_sm, E_Cl_s): compute the Cl flux across the soma membrane
+        j_Na_d(phi_dm, E_Na_d): compute the Na flux across the dendrite membrane
+        j_K_d(phi_dm, E_K_d): compute the K flux across the dendrite membrane
+        j_Cl_d(phi_dm, E_Cl_d): compute the Cl flux across the dendrite membrane
+        j_k_diff(D_k, tortuosity, k_s, k_d): compute the axial diffusion flux of ion k
+        j_k_drift(D_k, Z_k, tortuosity, k_s, k_d, phi_s, phi_d): compute the axial drift flux of ion k
+        conductivity_k(D_k, Z_k, tortuosity, k_s, k_d): compute axial conductivity of ion k
+        total_charge(k, V): calculate the total charge within volume V
+        nernst_potential(Z, k_i, k_e): calculate the reversal potential of ion k
+        reversal_potentials(): calculate the reversal potentials of all ion species
+        membrane_potentials(): calculate the membrane potentials
+        dkdt(): calculate dk/dt for all ion species k
     """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de):
+        
+        # temperature [K]
         self.T = T
+
+        # ion concentraions [mol * m**-2 * s**-1]
         self.Na_si = Na_si
         self.Na_se = Na_se
         self.Na_di = Na_di
@@ -24,8 +45,11 @@ class LeakyCell():
         self.Cl_di = Cl_si 
         self.Cl_de = Cl_de
 
-        self.C_sm = 3e-2
-        self.C_dm = 3e-2
+        # membrane capacitance [F * m**-2]
+        self.C_sm = 3e-2 # Pinsky and Rinzel, 1994
+        self.C_dm = 3e-2 # Pinsky and Rinzel, 1994
+       
+        # volumes and areas [m]
         self.A_s = 5e-10
         self.A_d = 5e-10 
         self.A_e = 1e-10
@@ -34,26 +58,30 @@ class LeakyCell():
         self.V_se = 1e-15
         self.V_di = 1e-15
         self.V_de = 1e-15
-
-        self.D_Na = 1.33e-9
-        self.D_K = 1.96e-9 
-        self.D_Cl = 2.03e-9
-
         self.dx = 10e-6
 
-        self.lamda_i = 3.2
-        self.lamda_e = 1.6
+        # diffusion constants
+        self.D_Na = 1.33e-9 # Halnes et al. 2013
+        self.D_K = 1.96e-9  # Halnes et al. 2013 
+        self.D_Cl = 2.03e-9 # Halnes et al. 2013
 
+        # tortuosities
+        self.lamda_i = 3.2 # Halnes et al. 2013
+        self.lamda_e = 1.6 # Halnes et al. 2013
+
+        # valencies
         self.Z_Na = 1.
         self.Z_K = 1.
         self.Z_Cl = -1.
 
-        self.F = 9.648e4    # [C  mol**-1]
+        # constants
+        self.F = 9.648e4    # [C * mol**-1]
         self.R = 8.314      # [J * mol**-1 * K**-1] 
 
-        self.g_Na_leak = 0.247    # [S m**-2]
-        self.g_K_leak = 0.5
-        self.g_Cl_leak = 1.0
+        # conductances [S * m**-2]
+        self.g_Na_leak = 0.247 # Wei et al. 2014
+        self.g_K_leak = 0.5    # Wei et al. 2014
+        self.g_Cl_leak = 1.0   # Wei et al. 2014
 
     def j_Na_s(self, phi_sm, E_Na_s):
         i_Na_s = self.g_Na_leak*(phi_sm - E_Na_s) / (self.F*self.Z_Na)
@@ -120,7 +148,7 @@ class LeakyCell():
             + self.Z_K*self.j_k_diff(self.D_K, self.lamda_e, self.K_se, self.K_de) \
             + self.Z_Cl*self.j_k_diff(self.D_Cl, self.lamda_e, self.Cl_se, self.Cl_de))
 
-        sigma_i = self.conductivity(self.D_Na, self.Z_Na, self.lamda_i, self.Na_si, self.Na_di) \
+        sigma_i = self.conductivity_k(self.D_Na, self.Z_Na, self.lamda_i, self.Na_si, self.Na_di) \
             + self.conductivity_k(self.D_K, self.Z_K, self.lamda_i, self.K_si, self.K_di) \
             + self.conductivity_k(self.D_Cl, self.Z_Cl, self.lamda_i, self.Cl_si, self.Cl_di)
         sigma_e = self.conductivity_k(self.D_Na, self.Z_Na, self.lamda_e, self.Na_se, self.Na_de) \
