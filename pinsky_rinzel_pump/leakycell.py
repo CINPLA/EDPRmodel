@@ -224,7 +224,7 @@ if __name__ == "__main__":
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
     
     start_time = time.time()
-    t_span = (0, 10)
+    t_span = (0, 1500)
 
     Na_si0 = 12.
     Na_se0 = 142.
@@ -242,10 +242,6 @@ if __name__ == "__main__":
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0]
 
     init_cell = LeakyCell(279.3, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0)
-   
-    print init_cell.Na_si
-    q_di = init_cell.total_charge([init_cell.Na_di, init_cell.K_di, init_cell.Cl_di], init_cell.V_di)
-    print 'Q_di: ', q_di
 
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
     
@@ -263,45 +259,45 @@ if __name__ == "__main__":
     print 'E_Cl_s: ', E_Cl_s
     print 'E_Cl_d:', E_Cl_d
 
-    #sol = solve_ivp(dkdt, t_span, k0, max_step=0.001)
+    sol = solve_ivp(dkdt, t_span, k0, max_step=0.001)
 
-    #Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = sol.y
-    #t = sol.t
+    Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = sol.y
+    t = sol.t
 
-#    my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
-#    
-#    phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
-#    
-#    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = my_cell.reversal_potentials()
-#
-#    print 'elapsed time: ', time.time() - start_time
-#
-#    plt.plot(t, phi_sm, '-', label='Vs')
-#    plt.plot(t, phi_dm, '-', label='Vd')
-#    plt.legend()
-#    plt.show()
-#
-#    plt.plot(t, Na_si, label='Na_si')
-#    plt.plot(t, Na_se, label='Na_se')
-#    plt.plot(t, Na_di, label='Na_di')
-#    plt.plot(t, Na_de, label='Na_de')
-#    plt.plot(t, Na_si+Na_se+Na_di+Na_de, label='tot')
-#    plt.legend()
-#    plt.show()
-#
-#    plt.plot(t, K_si, label='K_si')
-#    plt.plot(t, K_se, label='K_se')
-#    plt.plot(t, K_di, label='K_di')
-#    plt.plot(t, K_de, label='K_de')
-#    plt.plot(t, K_si+K_se+K_di+K_de, label='tot')
-#    plt.legend()
-#    plt.show()
-#
-#    plt.plot(t, Cl_si, label='Cl_si')
-#    plt.plot(t, Cl_se, label='Cl_se')
-#    plt.plot(t, Cl_di, label='Cl_di')
-#    plt.plot(t, Cl_de, label='Cl_de')
-#    plt.plot(t, Cl_si+Cl_se+Cl_di+Cl_de, label='tot')
-#    plt.legend()
-#    plt.show()
-#
+    my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
+    
+    phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
+    
+    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = my_cell.reversal_potentials()
+
+    print 'elapsed time: ', time.time() - start_time
+
+    plt.plot(t, phi_sm, '-', label='Vs')
+    plt.plot(t, phi_dm, '-', label='Vd')
+    plt.legend()
+    plt.show()
+
+    plt.plot(t, Na_si, label='Na_si')
+    plt.plot(t, Na_se, label='Na_se')
+    plt.plot(t, Na_di, label='Na_di')
+    plt.plot(t, Na_de, label='Na_de')
+    plt.plot(t, Na_si+Na_se+Na_di+Na_de, label='tot')
+    plt.legend()
+    plt.show()
+
+    plt.plot(t, K_si, label='K_si')
+    plt.plot(t, K_se, label='K_se')
+    plt.plot(t, K_di, label='K_di')
+    plt.plot(t, K_de, label='K_de')
+    plt.plot(t, K_si+K_se+K_di+K_de, label='tot')
+    plt.legend()
+    plt.show()
+
+    plt.plot(t, Cl_si, label='Cl_si')
+    plt.plot(t, Cl_se, label='Cl_se')
+    plt.plot(t, Cl_di, label='Cl_di')
+    plt.plot(t, Cl_de, label='Cl_de')
+    plt.plot(t, Cl_si+Cl_se+Cl_di+Cl_de, label='tot')
+    plt.legend()
+    plt.show()
+
