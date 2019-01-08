@@ -42,7 +42,7 @@ class LeakyCell():
         self.K_de = K_de
         self.Cl_si = Cl_si
         self.Cl_se = Cl_se 
-        self.Cl_di = Cl_si 
+        self.Cl_di = Cl_di 
         self.Cl_de = Cl_de
 
         # membrane capacitance [F * m**-2]
@@ -226,23 +226,27 @@ if __name__ == "__main__":
     start_time = time.time()
     t_span = (0, 10)
 
-    Na_si0 = 15.
-    Na_se0 = 145.
-    K_si0 = 100.
-    K_se0 = 3.
-    Cl_si0 = 115.
-    Cl_se0 = 148.
-    Na_di0 = 15.
-    Na_de0 = 145.
-    K_di0 = 100.
-    K_de0 = 3.
-    Cl_di0 = 115.
-    Cl_de0 = 148.
+    Na_si0 = 12.
+    Na_se0 = 142.
+    K_si0 = 99.
+    K_se0 = 2.
+    Cl_si0 = 111.
+    Cl_se0 = 144.
+    Na_di0 = 18.
+    Na_de0 = 148.
+    K_di0 = 101.
+    K_de0 = 4.
+    Cl_di0 = 119.
+    Cl_de0 = 152.
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0]
 
     init_cell = LeakyCell(279.3, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0)
-    
+   
+    print init_cell.Na_si
+    q_di = init_cell.total_charge([init_cell.Na_di, init_cell.K_di, init_cell.Cl_di], init_cell.V_di)
+    print 'Q_di: ', q_di
+
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
     
     E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = init_cell.reversal_potentials()
@@ -259,46 +263,45 @@ if __name__ == "__main__":
     print 'E_Cl_s: ', E_Cl_s
     print 'E_Cl_d:', E_Cl_d
 
-    sol = solve_ivp(dkdt, t_span, k0, max_step=0.001)
+    #sol = solve_ivp(dkdt, t_span, k0, max_step=0.001)
 
-    Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = sol.y
-    t = sol.t
+    #Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = sol.y
+    #t = sol.t
 
-    my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
-    
-    phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
-    
-    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = my_cell.reversal_potentials()
-
-    print 'elapsed time: ', time.time() - start_time
-
-    plt.plot(t, phi_sm, '-', label='Vs')
-    plt.plot(t, phi_dm, '-', label='Vd')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, Na_si, label='Na_si')
-    plt.plot(t, Na_se, label='Na_se')
-    plt.plot(t, Na_di, label='Na_di')
-    plt.plot(t, Na_de, label='Na_de')
-    plt.plot(t, Na_si+Na_se+Na_di+Na_de, label='tot')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, K_si, label='K_si')
-    plt.plot(t, K_se, label='K_se')
-    plt.plot(t, K_di, label='K_di')
-    plt.plot(t, K_de, label='K_de')
-    plt.plot(t, K_si+K_se+K_di+K_de, label='tot')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, Cl_si, label='Cl_si')
-    plt.plot(t, Cl_se, label='Cl_se')
-    plt.plot(t, Cl_di, label='Cl_di')
-    plt.plot(t, Cl_de, label='Cl_de')
-    plt.plot(t, Cl_si+Cl_se+Cl_di+Cl_de, label='tot')
-    plt.legend()
-    plt.show()
-
-    print np.round((Na_si*my_cell.V_si + Na_se*my_cell.V_se + Na_di*my_cell.V_di + Na_de*my_cell.V_de) * my_cell.F)
+#    my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
+#    
+#    phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
+#    
+#    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = my_cell.reversal_potentials()
+#
+#    print 'elapsed time: ', time.time() - start_time
+#
+#    plt.plot(t, phi_sm, '-', label='Vs')
+#    plt.plot(t, phi_dm, '-', label='Vd')
+#    plt.legend()
+#    plt.show()
+#
+#    plt.plot(t, Na_si, label='Na_si')
+#    plt.plot(t, Na_se, label='Na_se')
+#    plt.plot(t, Na_di, label='Na_di')
+#    plt.plot(t, Na_de, label='Na_de')
+#    plt.plot(t, Na_si+Na_se+Na_di+Na_de, label='tot')
+#    plt.legend()
+#    plt.show()
+#
+#    plt.plot(t, K_si, label='K_si')
+#    plt.plot(t, K_se, label='K_se')
+#    plt.plot(t, K_di, label='K_di')
+#    plt.plot(t, K_de, label='K_de')
+#    plt.plot(t, K_si+K_se+K_di+K_de, label='tot')
+#    plt.legend()
+#    plt.show()
+#
+#    plt.plot(t, Cl_si, label='Cl_si')
+#    plt.plot(t, Cl_se, label='Cl_se')
+#    plt.plot(t, Cl_di, label='Cl_di')
+#    plt.plot(t, Cl_de, label='Cl_de')
+#    plt.plot(t, Cl_si+Cl_se+Cl_di+Cl_de, label='tot')
+#    plt.legend()
+#    plt.show()
+#
