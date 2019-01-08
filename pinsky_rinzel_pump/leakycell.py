@@ -53,12 +53,21 @@ class LeakyCell():
         self.A_s = 9e-6
         self.A_d = 9e-6 
         self.A_i = 3e-6
-        self.A_e = 3e-6
+        self.A_e = 1.5e-6
         self.V_si = 2e-6
         self.V_di = 2e-6
         self.V_se = 1e-6
         self.V_de = 1e-6
         self.dx = 667e-6
+#        self.A_s = 5e-10
+#        self.A_d = 5e-10 
+#        self.A_i = 1e-10
+#        self.A_e = 1e106
+#        self.V_si = 1e-15
+#        self.V_di = 1e-15
+#        self.V_se = 1e-15
+#        self.V_de = 1e-15
+#        self.dx = 10e-6
 
         # diffusion constants
         self.D_Na = 1.33e-9 # Halnes et al. 2013
@@ -224,20 +233,33 @@ if __name__ == "__main__":
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
     
     start_time = time.time()
-    t_span = (0, 1500)
+    t_span = (0, 100)
 
-    Na_si0 = 12.
-    Na_se0 = 142.
-    K_si0 = 99.
-    K_se0 = 2.
-    Cl_si0 = 111.
-    Cl_se0 = 144.
-    Na_di0 = 18.
-    Na_de0 = 148.
-    K_di0 = 101.
-    K_de0 = 4.
-    Cl_di0 = 119.
-    Cl_de0 = 152.
+    Na_si0 = 15.
+    Na_se0 = 145.
+    K_si0 = 100.
+    K_se0 = 3.
+    Cl_si0 = 115.
+    Cl_se0 = 148.
+    Na_di0 = 15.
+    Na_de0 = 145.
+    K_di0 = 100.
+    K_de0 = 3.
+    Cl_di0 = 115.
+    Cl_de0 = 148.
+
+#    Na_si0 = 12.
+#    Na_se0 = 142.
+#    K_si0 = 99.
+#    K_se0 = 2.
+#    Cl_si0 = 111.
+#    Cl_se0 = 144.
+#    Na_di0 = 18.
+#    Na_de0 = 148.
+#    K_di0 = 101.
+#    K_de0 = 4.
+#    Cl_di0 = 119.
+#    Cl_de0 = 152.
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0]
 
