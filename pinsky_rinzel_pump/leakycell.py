@@ -1,6 +1,7 @@
 import numpy as np
 from math import fsum
 from scipy.integrate import solve_ivp
+import scipy.constants
 import matplotlib.pyplot as plt
 import time
 
@@ -31,7 +32,7 @@ class LeakyCell():
         # temperature [K]
         self.T = T
 
-        # ion concentraions [mol * m**-2 * s**-1]
+        # ion concentraions [mol * m**-3]
         self.Na_si = Na_si
         self.Na_se = Na_se
         self.Na_di = Na_di
@@ -50,26 +51,37 @@ class LeakyCell():
         self.C_dm = 3e-2 # Pinsky and Rinzel, 1994
        
         # volumes and areas [m]
+#        self.A_s = 9000e-6
+#        self.A_d = 9000e-6 
+#        self.A_i = 3e-6
+#        self.A_e = 1.5e-6
+#        self.V_si = 2000e-6
+#        self.V_di = 2000e-6
+#        self.V_se = 1000e-6
+#        self.V_de = 1000e-6
+#        self.dx = 667e-6
+
         self.A_s = 9e-6
         self.A_d = 9e-6 
         self.A_i = 3e-6
         self.A_e = 1.5e-6
-        self.V_si = 2e-6
-        self.V_di = 2e-6
-        self.V_se = 1e-6
-        self.V_de = 1e-6
-        self.dx = 667e-6
+        self.V_si = 2e-15
+        self.V_di = 2e-15
+        self.V_se = 1e-15
+        self.V_de = 1e-15
+        self.dx = 6e-6
+
 #        self.A_s = 5e-10
 #        self.A_d = 5e-10 
 #        self.A_i = 1e-10
-#        self.A_e = 1e106
+#        self.A_e = 1e-10
 #        self.V_si = 1e-15
 #        self.V_di = 1e-15
 #        self.V_se = 1e-15
 #        self.V_de = 1e-15
 #        self.dx = 10e-6
 
-        # diffusion constants
+        # diffusion constants [m**2 s**-1]
         self.D_Na = 1.33e-9 # Halnes et al. 2013
         self.D_K = 1.96e-9  # Halnes et al. 2013 
         self.D_Cl = 2.03e-9 # Halnes et al. 2013
@@ -130,7 +142,7 @@ class LeakyCell():
 
     def total_charge(self, k, V):
         Z_k = [self.Z_Na, self.Z_K, self.Z_Cl]
-        q = 0
+        q = 0.0
         for i in range(0, 3):
             q += Z_k[i]*k[i]
         q = self.F*q*V
@@ -174,6 +186,7 @@ class LeakyCell():
         phi_sm = phi_si - phi_se
         phi_dm = phi_di - phi_de
 
+
         return phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm
 
     def dkdt(self):
@@ -195,6 +208,8 @@ class LeakyCell():
             + self.j_k_drift(self.D_K, self.Z_K, self.lamda_i, self.K_si, self.K_di, phi_si, phi_di)
         j_Cl_i = self.j_k_diff(self.D_Cl, self.lamda_i, self.Cl_si, self.Cl_di) \
             + self.j_k_drift(self.D_Cl, self.Z_Cl, self.lamda_i, self.Cl_si, self.Cl_di, phi_si, phi_di)
+        if j_Na_i != 0 or j_K_i != 0 or j_Cl_i != 0:
+            print "diffusion"
 
         j_Na_e = self.j_k_diff(self.D_Na, self.lamda_e, self.Na_se, self.Na_de) \
             + self.j_k_drift(self.D_Na, self.Z_Na, self.lamda_e, self.Na_se, self.Na_de, phi_se, phi_de)
@@ -202,11 +217,13 @@ class LeakyCell():
             + self.j_k_drift(self.D_K, self.Z_K, self.lamda_e, self.K_se, self.K_de, phi_se, phi_de)
         j_Cl_e = self.j_k_diff(self.D_Cl, self.lamda_e, self.Cl_se, self.Cl_de) \
             + self.j_k_drift(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de, phi_se, phi_de)
+        #print j_Na_sm
 
         dNadt_si = -j_Na_sm*(self.A_s / self.V_si) - j_Na_i*(self.A_i / self.V_si)
         dNadt_di = -j_Na_dm*(self.A_d / self.V_di) + j_Na_i*(self.A_i / self.V_di)
         dNadt_se = j_Na_sm*(self.A_s / self.V_se) - j_Na_e*(self.A_e / self.V_se)
         dNadt_de = j_Na_dm*(self.A_d / self.V_de) + j_Na_e*(self.A_e / self.V_de)
+        #print dNadt_si*self.V_si, dNadt_se*self.V_se
 
         dKdt_si = -j_K_sm*(self.A_s / self.V_si) - j_K_i*(self.A_i / self.V_si)
         dKdt_di = -j_K_dm*(self.A_d / self.V_di) + j_K_i*(self.A_i / self.V_di)
@@ -222,13 +239,33 @@ class LeakyCell():
 
 if __name__ == "__main__":
 
-    def dkdt(t,k):
+    def dndt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = k
 
         my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
+        test_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
+        
+        #print Na_si*scipy.constants.N_A*my_cell.V_si + Na_se*scipy.constants.N_A*my_cell.V_se 
+        #print Cl_si*my_cell.V_si + Cl_se*my_cell.V_se 
+
+        q_si = test_cell.total_charge([test_cell.Na_si, test_cell.K_si, test_cell.Cl_si], \
+            test_cell.V_si)#/scipy.constants.e
+        q_se = test_cell.total_charge([test_cell.Na_se, test_cell.K_se, test_cell.Cl_se], \
+            test_cell.V_se)#/scipy.constants.e
+        q_di = test_cell.total_charge([test_cell.Na_di, test_cell.K_di, test_cell.Cl_di], \
+            test_cell.V_di)#/scipy.constants.e
+        q_de = test_cell.total_charge([test_cell.Na_de, test_cell.K_de, test_cell.Cl_de], \
+            test_cell.V_de)#/scipy.constants.e
+#        print q_si + q_se, q_di + q_de
+#        print np.isclose(q_si, -q_se, atol=1e-14)
+#        print np.isclose(q_di, -q_de)
+#        print Na_si
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de = my_cell.dkdt()
+
+        print dNadt_si, dNadt_se
+        #print Na_si, dNadt_si
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
     
@@ -281,7 +318,7 @@ if __name__ == "__main__":
     print 'E_Cl_s: ', E_Cl_s
     print 'E_Cl_d:', E_Cl_d
 
-    sol = solve_ivp(dkdt, t_span, k0, max_step=0.001)
+    sol = solve_ivp(dndt, t_span, k0, max_step=0.01)
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = sol.y
     t = sol.t
@@ -303,7 +340,7 @@ if __name__ == "__main__":
     plt.plot(t, Na_se, label='Na_se')
     plt.plot(t, Na_di, label='Na_di')
     plt.plot(t, Na_de, label='Na_de')
-    plt.plot(t, Na_si+Na_se+Na_di+Na_de, label='tot')
+#    plt.plot(t, Na_si+Na_se+Na_di+Na_de, label='tot')
     plt.legend()
     plt.show()
 
@@ -311,7 +348,7 @@ if __name__ == "__main__":
     plt.plot(t, K_se, label='K_se')
     plt.plot(t, K_di, label='K_di')
     plt.plot(t, K_de, label='K_de')
-    plt.plot(t, K_si+K_se+K_di+K_de, label='tot')
+#    plt.plot(t, K_si+K_se+K_di+K_de, label='tot')
     plt.legend()
     plt.show()
 
@@ -319,7 +356,9 @@ if __name__ == "__main__":
     plt.plot(t, Cl_se, label='Cl_se')
     plt.plot(t, Cl_di, label='Cl_di')
     plt.plot(t, Cl_de, label='Cl_de')
-    plt.plot(t, Cl_si+Cl_se+Cl_di+Cl_de, label='tot')
+#    plt.plot(t, Cl_si+Cl_se+Cl_di+Cl_de, label='tot')
     plt.legend()
     plt.show()
 
+    plt.plot(t, Cl_si*my_cell.V_si + Cl_se*my_cell.V_se + Cl_di*my_cell.V_di + Cl_de*my_cell.V_de, label='tot')
+    plt.show()
