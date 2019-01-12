@@ -260,6 +260,9 @@ if __name__ == "__main__":
     
     E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = init_cell.reversal_potentials()
 
+    print "----------------------------"
+    print "Initial values"
+    print "----------------------------"
     print 'phi_si: ', phi_si
     print 'phi_se: ', phi_se
     print 'phi_di: ', phi_di
@@ -272,6 +275,7 @@ if __name__ == "__main__":
     print 'E_K_d: ', E_K_d
     print 'E_Cl_s: ', E_Cl_s
     print 'E_Cl_d:', E_Cl_d
+    print "----------------------------"
 
     sol = solve_ivp(dkdt, t_span, k0, max_step=0.001)
 
@@ -290,10 +294,12 @@ if __name__ == "__main__":
     q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1]], my_cell.V_de)
     print "total charge at the end (C): ", q_si + q_se + q_di + q_de
 
-    print 'elapsed time: ', time.time() - start_time
+    print 'elapsed time: ', round(time.time() - start_time, 1), 'seconds'
 
     plt.plot(t, phi_sm, '-', label='Vs')
     plt.plot(t, phi_dm, '-', label='Vd')
+    plt.title('Membrane potentials')
+    plt.xlabel('time [s]')
     plt.legend()
     plt.show()
 
@@ -301,6 +307,8 @@ if __name__ == "__main__":
     plt.plot(t, Na_se, label='Na_se')
     plt.plot(t, Na_di, label='Na_di')
     plt.plot(t, Na_de, label='Na_de')
+    plt.title('Sodium concentrations')
+    plt.xlabel('time [s]')
     plt.legend()
     plt.show()
 
@@ -308,6 +316,8 @@ if __name__ == "__main__":
     plt.plot(t, K_se, label='K_se')
     plt.plot(t, K_di, label='K_di')
     plt.plot(t, K_de, label='K_de')
+    plt.title('Potassium concentrations')
+    plt.xlabel('time [s]')
     plt.legend()
     plt.show()
 
@@ -315,9 +325,7 @@ if __name__ == "__main__":
     plt.plot(t, Cl_se, label='Cl_se')
     plt.plot(t, Cl_di, label='Cl_di')
     plt.plot(t, Cl_de, label='Cl_de')
+    plt.title('Chloride concentrations')
+    plt.xlabel('time [s]')
     plt.legend()
     plt.show()
-
-    plt.plot(t, Cl_si*my_cell.V_si + Cl_se*my_cell.V_se + Cl_di*my_cell.V_di + Cl_de*my_cell.V_de, label='tot amount of substance')
-    plt.show()
-
