@@ -11,10 +11,14 @@ class Pump(LeakyCell):
         self.Ukcc2 = 
         self.Unkcc1 =
 
-        def j_pump(self, Na_i, K_e):
-            j = self.rho / (1. + exp((25. - Na_i)/3.)) / (1. + exp(3.5 - K_e)) 
+    def j_pump(self, Na_i, K_e):
+        j = self.rho / (1. + exp((25. - Na_i)/3.)) / (1. + exp(3.5 - K_e)) 
 
-        def j_Na_s(self, phi_sm, E_Na_s, Na_i, K_e):
-            j = LeakyCell.j_Na_s(self, phi_sm, E_Na_s) + 3*self.j_pump(Na_i, K_e)
-            return j
-        
+    def j_Na_s(self, phi_sm, E_Na_s):
+        j = LeakyCell.j_Na_s(self, phi_sm, E_Na_s) + 3*self.j_pump(self.Na_si, self.K_se)
+        return j
+       
+    def j_K_s(self, phi_sm, E_Cl_s):
+        j = LeakyCell.j_K_s(self, phi_sm, E_Cl_s) + 2*self.j_pump(self.Na_si, self.K_se)
+
+
