@@ -1,4 +1,8 @@
+from leakycell import LeakyCell
 import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
+import time
 
 class Pump(LeakyCell):
     """A two plus two compartment cell model with Na, K and Cl leak currents, and pumps.
@@ -13,6 +17,7 @@ class Pump(LeakyCell):
 
     def j_pump(self, Na_i, K_e):
         j = self.rho / (1. + np.exp((25. - Na_i)/3.)) / (1. + np.exp(3.5 - K_e))
+        return j
 
     def j_kcc2(self, K_i, K_e, Cl_i, Cl_e):
         j = self.U_kcc2 * np.log(K_i*Cl_i/(K_e*Cl_e))
@@ -39,6 +44,7 @@ class Pump(LeakyCell):
         j = LeakyCell.j_Cl_s(self, phi_sm, E_Cl_s) \
             + self.j_kcc2(self.K_si, self.K_se, self.Cl_si, self.Cl_se) \
             + 2*self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
+        return j
             
     def j_Na_d(self, phi_dm, E_Na_d):
         j = LeakyCell.j_Na_d(self, phi_dm, E_Na_d) \
@@ -57,10 +63,11 @@ class Pump(LeakyCell):
         j = LeakyCell.j_Cl_d(self, phi_dm, E_Cl_d) \
             + self.j_kcc2(self.K_di, self.K_de, self.Cl_di, self.Cl_de) \
             + 2*self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
+        return j
 
 if __name__ == "__main__":
 
-        def dkdt(t,k):
+    def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = k
 
@@ -71,7 +78,7 @@ if __name__ == "__main__":
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
     
     start_time = time.time()
-    t_span = (0, 1)
+    t_span = (0, 10)
 
     Na_si0 = 15.
     Na_se0 = 145.
