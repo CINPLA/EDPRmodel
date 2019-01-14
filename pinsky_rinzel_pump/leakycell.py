@@ -83,28 +83,28 @@ class LeakyCell():
         self.g_Cl_leak = 1.0   # Wei et al. 2014
 
     def j_Na_s(self, phi_sm, E_Na_s):
-        i_Na_s = self.g_Na_leak*(phi_sm - E_Na_s) / (self.F*self.Z_Na)
-        return i_Na_s
+        j = self.g_Na_leak*(phi_sm - E_Na_s) / (self.F*self.Z_Na)
+        return j 
 
     def j_K_s(self, phi_sm, E_K_s):
-        i_K_s = self.g_K_leak*(phi_sm - E_K_s) / (self.F*self.Z_K)
-        return i_K_s
+        j = self.g_K_leak*(phi_sm - E_K_s) / (self.F*self.Z_K)
+        return j
 
     def j_Cl_s(self, phi_sm, E_Cl_s):
-        i_Cl_s = self.g_Cl_leak*(phi_sm - E_Cl_s) / (self.F*self.Z_Cl)
-        return i_Cl_s
+        j = self.g_Cl_leak*(phi_sm - E_Cl_s) / (self.F*self.Z_Cl)
+        return j
 
     def j_Na_d(self, phi_dm, E_Na_d):
-        i_Na_d = self.g_Na_leak*(phi_dm - E_Na_d) / (self.F*self.Z_Na)
-        return i_Na_d
+        j = self.g_Na_leak*(phi_dm - E_Na_d) / (self.F*self.Z_Na)
+        return j
 
     def j_K_d(self, phi_dm, E_K_d):
-        i_K_d = self.g_K_leak*(phi_dm - E_K_d) / (self.F*self.Z_K)    
-        return i_K_d
+        j = self.g_K_leak*(phi_dm - E_K_d) / (self.F*self.Z_K)    
+        return j
 
     def j_Cl_d(self, phi_dm, E_Cl_d):
-        i_Cl_d = self.g_Cl_leak*(phi_dm - E_Cl_d) / (self.F*self.Z_Cl)
-        return i_Cl_d
+        j = self.g_Cl_leak*(phi_dm - E_Cl_d) / (self.F*self.Z_Cl)
+        return j
 
     def j_k_diff(self, D_k, tortuosity, k_s, k_d):
         j = - D_k * (k_d - k_s) / (tortuosity**2 * self.dx)
