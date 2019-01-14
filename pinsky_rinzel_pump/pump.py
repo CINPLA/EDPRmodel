@@ -20,5 +20,13 @@ class Pump(LeakyCell):
        
     def j_K_s(self, phi_sm, E_Cl_s):
         j = LeakyCell.j_K_s(self, phi_sm, E_Cl_s) + 2*self.j_pump(self.Na_si, self.K_se)
+        return j
 
+    def j_Na_d(self, phi_dm, E_Na_d):
+        j = LeakyCell.j_Na_d(self, phi_dm, E_Na_d) + 3*self.j_pump(self.Na_di, self.K_de)
+        return j
+
+    def j_K_d(self, phi_dm, E_Cl_d):
+        j = LeakyCell.j_K_d(self, phi_dm, E_Cl_d) + 2*self.j_pump(self.Na_di, self.K_de)
+        return j
 
