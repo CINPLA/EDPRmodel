@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import time
 
 class LeakyCell(): 
-    """A four compartment cell model (soma + dendrite, both internal and external space) 
-    with Na, K, and Cl leak currents.
+    """A two plus two compartment cell model with Na, K, and Cl leak currents.
 
     Methods:
         constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
