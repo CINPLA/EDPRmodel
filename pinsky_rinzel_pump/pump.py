@@ -9,8 +9,8 @@ class Pump(LeakyCell):
 
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de):
-        LeakyCell.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de):
+        LeakyCell.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de)
         self.rho = 3.3e-7
         self.U_kcc2 = 6.6e-8
         self.U_nkcc1 = 2.2e-8
@@ -67,11 +67,28 @@ class Pump(LeakyCell):
 
 if __name__ == "__main__":
 
+    Na_si0 = 15.
+    Na_se0 = 145.
+    K_si0 = 100.
+    K_se0 = 3.
+    Cl_si0 = 5.
+    Cl_se0 = 134.
+    Na_di0 = 15.
+    Na_de0 = 145.
+    K_di0 = 100.
+    K_de0 = 3.
+    Cl_di0 = 5.
+    Cl_de0 = 134.
+    k_rest_si = Cl_si0 - (Na_si0 + K_si0)
+    k_rest_se = Cl_se0 - (Na_se0 + K_se0)
+    k_rest_di = Cl_di0 - (Na_di0 + K_di0)
+    k_rest_de = Cl_de0 - (Na_de0 + K_de0)
+
     def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = k
 
-        my_cell = Pump(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
+        my_cell = Pump(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de)
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de = my_cell.dkdt()
 
@@ -80,19 +97,19 @@ if __name__ == "__main__":
     start_time = time.time()
     t_span = (0, 300)
 
-    Na_si0 = 15.
-    Na_se0 = 145.
-    K_si0 = 100.
-    K_se0 = 3.
-    Cl_si0 = 115.
-    Cl_se0 = 148.
-    Na_di0 = 15.
-    Na_de0 = 145.
-    K_di0 = 100.
-    K_de0 = 3.
-    Cl_di0 = 115.
-    Cl_de0 = 148.
-
+#    Na_si0 = 15.
+#    Na_se0 = 145.
+#    K_si0 = 100.
+#    K_se0 = 3.
+#    Cl_si0 = 115.
+#    Cl_se0 = 148.
+#    Na_di0 = 15.
+#    Na_de0 = 145.
+#    K_di0 = 100.
+#    K_de0 = 3.
+#    Cl_di0 = 115.
+#    Cl_de0 = 148.
+#
 #    Na_si0 = 12.
 #    Na_se0 = 142.
 #    K_si0 = 99.
@@ -108,7 +125,7 @@ if __name__ == "__main__":
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0]
 
-    init_cell = Pump(279.3, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0)
+    init_cell = Pump(279.3, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, k_rest_si, k_rest_se, k_rest_di, k_rest_de)
 
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
     
@@ -136,16 +153,16 @@ if __name__ == "__main__":
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = sol.y
     t = sol.t
 
-    my_cell = Pump(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
+    my_cell = Pump(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de)
     
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
     
     E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = my_cell.reversal_potentials()
 
-    q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[-1]], my_cell.V_si)
-    q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1]], my_cell.V_se)        
-    q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1]], my_cell.V_di)
-    q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1]], my_cell.V_de)
+    q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[-1]], my_cell.k_rest_si, my_cell.V_si)
+    q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1]], my_cell.k_rest_se, my_cell.V_se)        
+    q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1]], my_cell.k_rest_di, my_cell.V_di)
+    q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1]], my_cell.k_rest_de, my_cell.V_de)
     print "total charge at the end (C): ", q_si + q_se + q_di + q_de
 
     print 'elapsed time: ', round(time.time() - start_time, 1), 'seconds'
