@@ -174,6 +174,22 @@ if __name__ == "__main__":
     plt.legend()
     plt.show()
 
+    plt.plot(t, E_Na_s, label='E_Na')
+    plt.plot(t, E_K_s, label='E_K')
+    plt.plot(t, E_Cl_s, label='E_Cl')
+    plt.title('Reversal potentials soma')
+    plt.xlabel('time [s]')
+    plt.legend()
+    plt.show()
+
+    plt.plot(t, E_Na_d, label='E_Na')
+    plt.plot(t, E_K_d, label='E_K')
+    plt.plot(t, E_Cl_d, label='E_Cl')
+    plt.title('Reversal potentials dendrite')
+    plt.xlabel('time [s]')
+    plt.legend()
+    plt.show()
+
     plt.plot(t, Na_si, label='Na_si')
     plt.plot(t, Na_se, label='Na_se')
     plt.plot(t, Na_di, label='Na_di')
