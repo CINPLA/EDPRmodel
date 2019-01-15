@@ -49,8 +49,10 @@ class LeakyCell():
         self.k_rest_de = k_rest_de
 
         # membrane capacitance [F * m**-2]
-        self.C_sm = 3e-2 # Pinsky and Rinzel, 1994
-        self.C_dm = 3e-2 # Pinsky and Rinzel, 1994
+        #self.C_sm = 3e-2 # Pinsky and Rinzel, 1994
+        #self.C_dm = 3e-2 # Pinsky and Rinzel, 1994
+        self.C_sm = 1e-2 # Wei et al. 2014
+        self.C_dm = 1e-2 # Wei et al. 2014
        
         # volumes and areas 
         self.A_s = 9000e-12  # [m**2]
