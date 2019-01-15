@@ -164,7 +164,7 @@ class LeakyCell():
         phi_di = q_di / (self.C_dm * self.A_d)
         phi_se = (phi_di - self.dx * I_i_diff / sigma_i - self.A_e * self.V_si * self.dx * I_e_diff / (self.V_se * self.A_i * sigma_i) - q_si / (self.C_sm * self.A_s)) / (1 + self.A_e*self.V_si*sigma_e/(self.V_se*self.A_i*sigma_i))
         phi_si = q_si / (self.C_sm * self.A_s) + phi_se
-        phi_de = 0
+        phi_de = 0.
         phi_sm = phi_si - phi_se
         phi_dm = phi_di - phi_de
 
@@ -306,6 +306,22 @@ if __name__ == "__main__":
     plt.plot(t, phi_sm, '-', label='Vs')
     plt.plot(t, phi_dm, '-', label='Vd')
     plt.title('Membrane potentials')
+    plt.xlabel('time [s]')
+    plt.legend()
+    plt.show()
+
+    plt.plot(t, E_Na_s, label='E_Na')
+    plt.plot(t, E_K_s, label='E_K')
+    plt.plot(t, E_Cl_s, label='E_Cl')
+    plt.title('Reversal potentials soma')
+    plt.xlabel('time [s]')
+    plt.legend()
+    plt.show()
+
+    plt.plot(t, E_Na_d, label='E_Na')
+    plt.plot(t, E_K_d, label='E_K')
+    plt.plot(t, E_Cl_d, label='E_Cl')
+    plt.title('Reversal potentials dendrite')
     plt.xlabel('time [s]')
     plt.legend()
     plt.show()
