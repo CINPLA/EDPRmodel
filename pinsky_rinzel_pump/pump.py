@@ -78,7 +78,7 @@ if __name__ == "__main__":
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
     
     start_time = time.time()
-    t_span = (0, 10)
+    t_span = (0, 300)
 
     Na_si0 = 15.
     Na_se0 = 145.
