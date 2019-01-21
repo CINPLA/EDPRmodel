@@ -11,12 +11,15 @@ class Pump(LeakyCell):
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de):
         LeakyCell.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de)
-        self.rho = 1.87e-6
-        self.U_kcc2 = 7.01e-7
-        self.U_nkcc1 = 2.34e-7
+        self.rho = 1.78e-7
+        self.U_kcc2 = 6.67e-8
+        self.U_nkcc1 = 2.22e-8
+#        self.rho = 1.87e-6
+#        self.U_kcc2 = 7.00e-7
+#        self.U_nkcc1 = 2.33e-7
 
     def j_pump(self, Na_i, K_e):
-        j = self.rho / (1. + np.exp((25. - Na_i)/3.)) / (1. + np.exp(3.5 - K_e))
+        j = (self.rho / (1.0 + np.exp((25. - Na_i)/3.))) * (1.0 / (1.0 + np.exp(3.5 - K_e)))
         return j
 
     def j_kcc2(self, K_i, K_e, Cl_i, Cl_e):
@@ -30,55 +33,43 @@ class Pump(LeakyCell):
     def j_Na_s(self, phi_sm, E_Na_s):
         j = LeakyCell.j_Na_s(self, phi_sm, E_Na_s) \
             + 3*self.j_pump(self.Na_si, self.K_se) \
-            + self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
+            - self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
         return j
        
     def j_K_s(self, phi_sm, E_Cl_s):
         j = LeakyCell.j_K_s(self, phi_sm, E_Cl_s) \
-            + 2*self.j_pump(self.Na_si, self.K_se) \
+            - 2*self.j_pump(self.Na_si, self.K_se) \
             + self.j_kcc2(self.K_si, self.K_se, self.Cl_si, self.Cl_se) \
-            + self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
+            - self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
         return j
 
     def j_Cl_s(self, phi_sm, E_Cl_s):
         j = LeakyCell.j_Cl_s(self, phi_sm, E_Cl_s) \
             + self.j_kcc2(self.K_si, self.K_se, self.Cl_si, self.Cl_se) \
-            + 2*self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
+            - 2*self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
         return j
             
     def j_Na_d(self, phi_dm, E_Na_d):
         j = LeakyCell.j_Na_d(self, phi_dm, E_Na_d) \
             + 3*self.j_pump(self.Na_di, self.K_de) \
-            + self.j_nkcc1(self.Na_si, self.Na_se, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
+            - self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
         return j
 
     def j_K_d(self, phi_dm, E_Cl_d):
         j = LeakyCell.j_K_d(self, phi_dm, E_Cl_d) \
-            + 2*self.j_pump(self.Na_di, self.K_de) \
+            - 2*self.j_pump(self.Na_di, self.K_de) \
             + self.j_kcc2(self.K_di, self.K_de, self.Cl_di, self.Cl_de) \
-            + self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
+            - self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
         return j
 
     def j_Cl_d(self, phi_dm, E_Cl_d):
         j = LeakyCell.j_Cl_d(self, phi_dm, E_Cl_d) \
             + self.j_kcc2(self.K_di, self.K_de, self.Cl_di, self.Cl_de) \
-            + 2*self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
+            - 2*self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
         return j
 
 if __name__ == "__main__":
 
-#    Na_si0 = 15.
-#    K_si0 = 100.
-#    Cl_si0 = 5.
-#    Na_se0 = 145.
-#    K_se0 = 3.
-#    Cl_se0 = 134.
-#    Na_di0 = 15.
-#    K_di0 = 100.
-#    Cl_di0 = 5.
-#    Na_de0 = 145.
-#    K_de0 = 3.
-#    Cl_de0 = 134.
     Na_si0 = 18.
     K_si0 = 140.
     Cl_si0 = 6.
@@ -95,10 +86,10 @@ if __name__ == "__main__":
     K_de0 = 4.
     Cl_de0 = 130.
 
-    k_rest_si = Cl_si0 - (Na_si0 + K_si0)
-    k_rest_se = Cl_se0 - (Na_se0 + K_se0)
-    k_rest_di = Cl_di0 - (Na_di0 + K_di0)
-    k_rest_de = Cl_de0 - (Na_de0 + K_de0)
+    k_rest_si = Cl_si0 - (Na_si0 + K_si0)#-0.035
+    k_rest_se = Cl_se0 - (Na_se0 + K_se0)#+0.07
+    k_rest_di = Cl_di0 - (Na_di0 + K_di0)#-0.035
+    k_rest_de = Cl_de0 - (Na_de0 + K_de0)#+0.07
 
     def dkdt(t,k):
 
@@ -112,32 +103,6 @@ if __name__ == "__main__":
     
     start_time = time.time()
     t_span = (0, 50)
-
-#    Na_si0 = 15.
-#    Na_se0 = 145.
-#    K_si0 = 100.
-#    K_se0 = 3.
-#    Cl_si0 = 115.
-#    Cl_se0 = 148.
-#    Na_di0 = 15.
-#    Na_de0 = 145.
-#    K_di0 = 100.
-#    K_de0 = 3.
-#    Cl_di0 = 115.
-#    Cl_de0 = 148.
-#
-#    Na_si0 = 12.
-#    Na_se0 = 142.
-#    K_si0 = 99.
-#    K_se0 = 2.
-#    Cl_si0 = 111.
-#    Cl_se0 = 144.
-#    Na_di0 = 18.
-#    Na_de0 = 148.
-#    K_di0 = 101.
-#    K_de0 = 4.
-#    Cl_di0 = 119.
-#    Cl_de0 = 152.
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0]
 

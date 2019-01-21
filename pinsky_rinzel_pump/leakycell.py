@@ -133,7 +133,8 @@ class LeakyCell():
         return q
 
     def nernst_potential(self, Z, k_i, k_e):
-        E = self.R*self.T / (Z*self.F) * np.log(k_e / k_i)
+        #E = self.R*self.T / (Z*self.F) * np.log(k_e / k_i)
+        E = 26.64e-3 * np.log(k_e / k_i) / Z
         return E
 
     def reversal_potentials(self):
@@ -198,6 +199,8 @@ class LeakyCell():
             + self.j_k_drift(self.D_K, self.Z_K, self.lamda_e, self.K_se, self.K_de, phi_se, phi_de)
         j_Cl_e = self.j_k_diff(self.D_Cl, self.lamda_e, self.Cl_se, self.Cl_de) \
             + self.j_k_drift(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de, phi_se, phi_de)
+        if j_Na_i != 0 or j_K_i != 0 or j_Cl_i != 0 or j_Na_e != 0 or j_K_e != 0 or j_Cl_e != 0:
+            print "Difussion!"
         
         dNadt_si = -j_Na_sm*(self.A_s / self.V_si) - j_Na_i*(self.A_i / self.V_si)
         dNadt_di = -j_Na_dm*(self.A_d / self.V_di) + j_Na_i*(self.A_i / self.V_di)
@@ -217,19 +220,6 @@ class LeakyCell():
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
 
 if __name__ == "__main__":
-
-#    Na_si0 = 15.
-#    Na_se0 = 145.
-#    K_si0 = 100.
-#    K_se0 = 3.
-#    Cl_si0 = 115.
-#    Cl_se0 = 148.
-#    Na_di0 = 15.
-#    Na_de0 = 145.
-#    K_di0 = 100.
-#    K_de0 = 3.
-#    Cl_di0 = 115.
-#    Cl_de0 = 148.
 
     Na_si0 = 15.
     Na_se0 = 145.
