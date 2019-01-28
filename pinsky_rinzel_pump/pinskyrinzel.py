@@ -96,13 +96,15 @@ class PinskyRinzel(Pump):
     def m_inf(self, phi_sm):
         return self.alpha_m(phi_sm) / (self.alpha_m(phi_sm) + self.beta_m(phi_sm))
 
-#    def j_Na_s(self, phi_sm, E_Na_s):
-#        j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
-#            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s)
-#
-#    def j_K_s(self, phi_sm, E_K_s):
-#        j = Pump.j_K_s(self, phi_sm, E_K_s) \
-#            + self.g_DR * self.n * (phi_sm - E_K_s)
+    def j_Na_s(self, phi_sm, E_Na_s):
+        j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
+            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s)
+        return j
+
+    def j_K_s(self, phi_sm, E_K_s):
+        j = Pump.j_K_s(self, phi_sm, E_K_s) \
+            + self.g_DR * self.n * (phi_sm - E_K_s)
+        return j
 
     def dkdt(self):
 
