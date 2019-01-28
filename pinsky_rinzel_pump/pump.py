@@ -11,12 +11,12 @@ class Pump(LeakyCell):
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de):
         LeakyCell.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de)
-        self.rho = 1.78e-7
-        self.U_kcc2 = 6.67e-8
-        self.U_nkcc1 = 2.22e-8
-#        self.rho = 1.87e-6
-#        self.U_kcc2 = 7.00e-7
-#        self.U_nkcc1 = 2.33e-7
+        self.rho = 1.87e-6
+        self.U_kcc2 = 7.00e-7
+        self.U_nkcc1 = 2.33e-7
+#        self.rho = 1.78e-7
+#        self.U_kcc2 = 6.67e-8
+#        self.U_nkcc1 = 2.22e-8
 
     def j_pump(self, Na_i, K_e):
         j = (self.rho / (1.0 + np.exp((25. - Na_i)/3.))) * (1.0 / (1.0 + np.exp(3.5 - K_e)))
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
     
     start_time = time.time()
-    t_span = (0, 50)
+    t_span = (0, 140)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0]
 

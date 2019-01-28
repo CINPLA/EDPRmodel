@@ -16,7 +16,7 @@ g_Ca = 10.   # [mS cm**-2]
 g_AHP = 0.8  # [mS cm**-2]
 g_C = 15.    # [mS cm**-2]
 
-E_L = -60.   # [mV]
+E_L = -73#-60.   # [mV]
 E_Na = 60.   # [mV]
 E_K = -75.   # [mV]
 E_Ca = 80.   # [mV]
@@ -117,7 +117,7 @@ def dVdt(t, V):
     return dVsdt, dVddt, dndt, dhdt, dsdt, dcdt, dqdt, dCadt
 
 
-t_span = (0, 800)
+t_span = (0, 1600)
 
 Vs0 = -64.6
 Vd0 = -64.5
