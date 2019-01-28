@@ -71,3 +71,7 @@ class PinskyRinzel(Pump):
         else:
             beta = 0.
         return beta
+
+    def chi(Ca):
+        return min(Ca/2.5e-4, 1.0)
+
