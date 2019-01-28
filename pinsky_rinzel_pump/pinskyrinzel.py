@@ -98,3 +98,4 @@ class PinskyRinzel(Pump):
     def j_Na_s(self, phi_sm, E_Na_s):
         j = Pump.j_Na_s(self, phi_sm, E_Na_s) + \
             self.g_Na * m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s)
+
