@@ -90,7 +90,6 @@ class PinskyRinzel(Pump):
     def m_inf(self, phi_sm):
         return self.alpha_m(phi_sm) / (self.alpha_m(phi_sm) + self.beta_m(phi_sm))
 
-
-#    def j_Na_s(self, phi_sm, E_Na_s):
-#        j = Pump.j_Na_s(self, phi_sm, E_Na_s) + \
-#            self.g_Na * m_inf() * h
+    def j_Na_s(self, phi_sm, E_Na_s):
+        j = Pump.j_Na_s(self, phi_sm, E_Na_s) + \
+            self.g_Na * m_inf(phi_sm)**2 * h * (phi_sm - E_Na_s) # figure out how to deal with h
