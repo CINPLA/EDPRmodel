@@ -9,12 +9,17 @@ class PinskyRinzel(Pump):
 
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de):
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q):
         Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de)
         self.Ca_si = Ca_si # flytte disse til LeakyCell?
-        self_Ca_se = Ca_se
+        self.Ca_se = Ca_se
         self.Ca_di = Ca_di
-        self_Ca_de = Ca_de
+        self.Ca_de = Ca_de
+        self.n = n
+        self.h = h
+        self.s = s
+        self.c = c
+        self.q = q
 
         # conductances [S * m**-2]
         self.g_Na = 300.
@@ -92,4 +97,4 @@ class PinskyRinzel(Pump):
 
     def j_Na_s(self, phi_sm, E_Na_s):
         j = Pump.j_Na_s(self, phi_sm, E_Na_s) + \
-            self.g_Na * m_inf(phi_sm)**2 * h * (phi_sm - E_Na_s) # figure out how to deal with h
+            self.g_Na * m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s)
