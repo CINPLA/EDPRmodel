@@ -79,7 +79,7 @@ class PinskyRinzel(Pump):
     def beta_c(self, phi_dm):
         phi_7 = phi_dm*1e3 + 53.5
         if phi_dm*1e3 <= -10:
-            beta = 2. * np.exp(-phi_7 / 27.) - alpha_c(phi_dm)
+            beta = 2. * np.exp(-phi_7 / 27.) - self.alpha_c(phi_dm)
         else:
             beta = 0.
         return beta
@@ -118,7 +118,7 @@ class PinskyRinzel(Pump):
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
         dsdt = self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
         dcdt = self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
-        dqdt = self.alpha_q(self.Ca_di)*(1-self.q) - self.beta_q(self.Ca_di)*self.q
+        dqdt = self.alpha_q(self.Ca_di)*(1-self.q) - self.beta_q()*self.q
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
@@ -172,7 +172,7 @@ if __name__ == "__main__":
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
     
     start_time = time.time()
-    t_span = (0, 140)
+    t_span = (0, 10)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
 
