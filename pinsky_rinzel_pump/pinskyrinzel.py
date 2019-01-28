@@ -96,13 +96,13 @@ class PinskyRinzel(Pump):
     def m_inf(self, phi_sm):
         return self.alpha_m(phi_sm) / (self.alpha_m(phi_sm) + self.beta_m(phi_sm))
 
-    def j_Na_s(self, phi_sm, E_Na_s):
-        j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
-            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s)
-
-    def j_K_s(self, phi_sm, E_K_s):
-        j = Pump.j_K_s(self, phi_sm, E_K_s) \
-            + self.g_DR * self.n * (phi_sm - E_K_s)
+#    def j_Na_s(self, phi_sm, E_Na_s):
+#        j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
+#            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s)
+#
+#    def j_K_s(self, phi_sm, E_K_s):
+#        j = Pump.j_K_s(self, phi_sm, E_K_s) \
+#            + self.g_DR * self.n * (phi_sm - E_K_s)
 
     def dkdt(self):
 
@@ -114,11 +114,11 @@ class PinskyRinzel(Pump):
         dCadt_di = 0
         dCadt_de = 0
 
-        dndt = alpha_n(phi_sm)*(1-self.n) - beta_n(phi_sm)*self.n
-        dhdt = alpha_h(phi_sm)*(1-self.h) - beta_h(phi_sm)*self.h 
-        dsdt = alpha_s(phi_dm)*(1-self.s) - beta_s(phi_dm)*self.s
-        dcdt = alpha_c(phi_dm)*(1-self.c) - beta_c(phi_dm)*self.c
-        dqdt = alpha_q(self.Ca_di)*(1-self.q) - beta_q(self.Ca_di)*self.q
+        dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
+        dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
+        dsdt = self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
+        dcdt = self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
+        dqdt = self.alpha_q(self.Ca_di)*(1-self.q) - self.beta_q(self.Ca_di)*self.q
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
