@@ -16,6 +16,12 @@ class PinskyRinzel(Pump):
         self.Ca_di = Ca_di
         self_Ca_de = Ca_de
 
+        # conductances [S * m**-2]
+        self.g_Na = 300.
+        self.g_DR = 150.
+        self.g_Ca = 100.
+        self.g_AHP = 8.
+        self.g_C = 150.
 
     def alpha_m(phi_sm):
         phi_1 = phi_sm*1e3 + 46.9
