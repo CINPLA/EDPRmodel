@@ -75,3 +75,10 @@ class PinskyRinzel(Pump):
     def chi(Ca):
         return min(Ca/2.5e-4, 1.0)
 
+    def alpha_q(Ca):
+        return min(20*Ca, 0.01)
+
+    def beta_q():
+        return 0.001
+
+
