@@ -87,5 +87,10 @@ class PinskyRinzel(Pump):
     def beta_q(self):
         return 0.001
 
-#    def j_Na_s(self,):
-#        j = Pump.j_Na
+    def m_inf(self, phi_sm):
+        return self.alpha_m(phi_sm) / (self.alpha_m(phi_sm) + self.beta_m(phi_sm))
+
+
+#    def j_Na_s(self, phi_sm, E_Na_s):
+#        j = Pump.j_Na_s(self, phi_sm, E_Na_s) + \
+#            self.g_Na * m_inf() * h
