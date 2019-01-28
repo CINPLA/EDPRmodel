@@ -199,8 +199,8 @@ class LeakyCell():
             + self.j_k_drift(self.D_K, self.Z_K, self.lamda_e, self.K_se, self.K_de, phi_se, phi_de)
         j_Cl_e = self.j_k_diff(self.D_Cl, self.lamda_e, self.Cl_se, self.Cl_de) \
             + self.j_k_drift(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de, phi_se, phi_de)
-        if j_Na_i != 0 or j_K_i != 0 or j_Cl_i != 0 or j_Na_e != 0 or j_K_e != 0 or j_Cl_e != 0:
-            print "Difussion!"
+#        if j_Na_i != 0 or j_K_i != 0 or j_Cl_i != 0 or j_Na_e != 0 or j_K_e != 0 or j_Cl_e != 0:
+#            print "Difussion!"
         
         dNadt_si = -j_Na_sm*(self.A_s / self.V_si) - j_Na_i*(self.A_i / self.V_si)
         dNadt_di = -j_Na_dm*(self.A_d / self.V_di) + j_Na_i*(self.A_i / self.V_di)
