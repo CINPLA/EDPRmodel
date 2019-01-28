@@ -2,6 +2,7 @@
 from pump import Pump
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
+import numpy as np
 import time
 
 class PinskyRinzel(Pump):
@@ -30,55 +31,55 @@ class PinskyRinzel(Pump):
 
     def alpha_m(self, phi_sm):
         phi_1 = phi_sm*1e3 + 46.9
-        alpha = - 0.32 * phi_1 / (exp(-phi_1 / 4) - 1.)
+        alpha = - 0.32 * phi_1 / (np.exp(-phi_1 / 4) - 1.)
         return alpha
 
     def beta_m(self, phi_sm):
         phi_2 = phi_sm*1e3 + 19.9
-        beta = 0.28 * phi_2 / (exp(phi_2 / 5.) - 1.)
+        beta = 0.28 * phi_2 / (np.exp(phi_2 / 5.) - 1.)
         return beta
 
     def alpha_h(self, phi_sm):
-        alpha = 0.128 * exp((-43. - phi_sm*1e3) / 18.)
+        alpha = 0.128 * np.exp((-43. - phi_sm*1e3) / 18.)
         return alpha
 
     def beta_h(self, phi_sm):
         phi_5 = phi_sm*1e3 + 20.
-        beta = 4. / (1 + exp(-phi_5 / 5.))
+        beta = 4. / (1 + np.exp(-phi_5 / 5.))
         return beta
 
     def alpha_n(self, phi_sm):
         phi_3 = phi_sm*1e3 + 24.9
-        alpha = - 0.016 * phi_3 / (exp(-phi_3 / 5.) - 1)
+        alpha = - 0.016 * phi_3 / (np.exp(-phi_3 / 5.) - 1)
         return alpha
 
     def beta_n(self, phi_sm):
         phi_4 = phi_sm*1e3 + 40.
-        beta = 0.25 * exp(-phi_4 / 40.)
+        beta = 0.25 * np.exp(-phi_4 / 40.)
         return beta
 
     def alpha_s(self, phi_dm):
-        alpha = 1.6 / (1 + exp(-0.072 * (phi_dm*1e3 - 5.)))
+        alpha = 1.6 / (1 + np.exp(-0.072 * (phi_dm*1e3 - 5.)))
         return alpha
 
     def beta_s(self, phi_dm):
         phi_6 = phi_dm*1e3 + 8.9
-        beta = 0.02 * phi_6 / (exp(phi_6 / 5.) - 1.)
+        beta = 0.02 * phi_6 / (np.exp(phi_6 / 5.) - 1.)
         return beta
 
     def alpha_c(self, phi_dm):
         phi_7 = phi_dm*1e3 + 53.5
         phi_8 = phi_dm*1e3 + 50.0
         if phi_dm*1e3 <= -10:
-            alpha = 0.0527 * exp(phi_8/11.- phi_7/27.)
+            alpha = 0.0527 * np.exp(phi_8/11.- phi_7/27.)
         else:
-            alpha = 2 * exp(-phi_7 / 27.)
+            alpha = 2 * np.exp(-phi_7 / 27.)
         return alpha
 
     def beta_c(self, phi_dm):
         phi_7 = phi_dm*1e3 + 53.5
         if phi_dm*1e3 <= -10:
-            beta = 2. * exp(-phi_7 / 27.) - alpha_c(phi_dm)
+            beta = 2. * np.exp(-phi_7 / 27.) - alpha_c(phi_dm)
         else:
             beta = 0.
         return beta
