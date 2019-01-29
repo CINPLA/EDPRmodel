@@ -108,22 +108,22 @@ class PinskyRinzel(Pump):
 
     def j_Na_s(self, phi_sm, E_Na_s):
         j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
-            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s)
+            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s) / (self.F*self.Z_Na)
         return j
 
     def j_K_s(self, phi_sm, E_K_s):
         j = Pump.j_K_s(self, phi_sm, E_K_s) \
-            + self.g_DR * self.n * (phi_sm - E_K_s)
+            + self.g_DR * self.n * (phi_sm - E_K_s) / (self.F*self.Z_K)
         return j
 
     def j_Na_d(self, phi_dm, E_Na_d): # this is added just to make soma and dendrite equal
         j = Pump.j_Na_d(self, phi_dm, E_Na_d) \
-            + self.g_Na * self.m_inf(phi_dm)**2 * self.h * (phi_dm - E_Na_d)
+            + self.g_Na * self.m_inf(phi_dm)**2 * self.h * (phi_dm - E_Na_d) / (self.F*self.Z_Na)
         return j
 
     def j_K_d(self, phi_dm, E_K_d): # this is added just to make soma and dendrite equal
         j = Pump.j_K_d(self, phi_dm, E_K_d) \
-            + self.g_DR * self.n * (phi_dm - E_K_d)
+            + self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K)
         return j
 
     def dkdt(self):
@@ -194,7 +194,7 @@ if __name__ == "__main__":
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
     
     start_time = time.time()
-    t_span = (0, 1)
+    t_span = (0, 100)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
 
