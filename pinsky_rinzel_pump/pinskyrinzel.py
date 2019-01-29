@@ -32,39 +32,47 @@ class PinskyRinzel(Pump):
     def alpha_m(self, phi_sm):
         phi_1 = phi_sm*1e3 + 46.9
         alpha = - 0.32 * phi_1 / (np.exp(-phi_1 / 4) - 1.)
+        alpha = alpha*1e3
         return alpha
 
     def beta_m(self, phi_sm):
         phi_2 = phi_sm*1e3 + 19.9
         beta = 0.28 * phi_2 / (np.exp(phi_2 / 5.) - 1.)
+        beta = beta*1e3
         return beta
 
     def alpha_h(self, phi_sm):
         alpha = 0.128 * np.exp((-43. - phi_sm*1e3) / 18.)
+        alpha = alpha*1e3
         return alpha
 
     def beta_h(self, phi_sm):
         phi_5 = phi_sm*1e3 + 20.
         beta = 4. / (1 + np.exp(-phi_5 / 5.))
+        beta = beta*1e3
         return beta
 
     def alpha_n(self, phi_sm):
         phi_3 = phi_sm*1e3 + 24.9
         alpha = - 0.016 * phi_3 / (np.exp(-phi_3 / 5.) - 1)
+        alpha = alpha*1e3
         return alpha
 
     def beta_n(self, phi_sm):
         phi_4 = phi_sm*1e3 + 40.
         beta = 0.25 * np.exp(-phi_4 / 40.)
+        beta = beta*1e3
         return beta
 
     def alpha_s(self, phi_dm):
         alpha = 1.6 / (1 + np.exp(-0.072 * (phi_dm*1e3 - 5.)))
+        alpha = alpha*1e3
         return alpha
 
     def beta_s(self, phi_dm):
         phi_6 = phi_dm*1e3 + 8.9
         beta = 0.02 * phi_6 / (np.exp(phi_6 / 5.) - 1.)
+        beta = beta*1e3
         return beta
 
     def alpha_c(self, phi_dm):
@@ -74,6 +82,7 @@ class PinskyRinzel(Pump):
             alpha = 0.0527 * np.exp(phi_8/11.- phi_7/27.)
         else:
             alpha = 2 * np.exp(-phi_7 / 27.)
+        alpha = alpha*1e3
         return alpha
 
     def beta_c(self, phi_dm):
@@ -82,16 +91,17 @@ class PinskyRinzel(Pump):
             beta = 2. * np.exp(-phi_7 / 27.) - self.alpha_c(phi_dm)
         else:
             beta = 0.
+        beta = beta*1e3
         return beta
 
     def chi(self, Ca):
         return min(Ca/2.5e-4, 1.0)
 
     def alpha_q(self, Ca):
-        return min(20*Ca, 0.01)
+        return min(20*Ca, 0.01) # maa skaleres 
 
     def beta_q(self):
-        return 0.001
+        return 0.001 # maa skaleres
 
     def m_inf(self, phi_sm):
         return self.alpha_m(phi_sm) / (self.alpha_m(phi_sm) + self.beta_m(phi_sm))
@@ -106,6 +116,16 @@ class PinskyRinzel(Pump):
             + self.g_DR * self.n * (phi_sm - E_K_s)
         return j
 
+    def j_Na_d(self, phi_dm, E_Na_d): # this is added just to make soma and dendrite equal
+        j = Pump.j_Na_d(self, phi_dm, E_Na_d) \
+            + self.g_Na * self.m_inf(phi_dm)**2 * self.h * (phi_dm - E_Na_d)
+        return j
+
+    def j_K_d(self, phi_dm, E_K_d): # this is added just to make soma and dendrite equal
+        j = Pump.j_K_d(self, phi_dm, E_K_d) \
+            + self.g_DR * self.n * (phi_dm - E_K_d)
+        return j
+
     def dkdt(self):
 
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = self.membrane_potentials()
@@ -118,9 +138,9 @@ class PinskyRinzel(Pump):
 
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
-        dsdt = self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
-        dcdt = self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
-        dqdt = self.alpha_q(self.Ca_di)*(1-self.q) - self.beta_q()*self.q
+        dsdt = 0#self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
+        dcdt = 0#self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
+        dqdt = 0#self.alpha_q(self.Ca_di)*(1-self.q) - self.beta_q()*self.q
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
@@ -174,7 +194,7 @@ if __name__ == "__main__":
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
     
     start_time = time.time()
-    t_span = (0, 10)
+    t_span = (0, 1)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
 
