@@ -1,4 +1,3 @@
-#from leakycell import LeakyCell
 from pump import Pump
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
@@ -10,7 +9,7 @@ class PinskyRinzel(Pump):
 
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q):
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q, I_stim):
         Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de)
         self.Ca_si = Ca_si # flytte disse til LeakyCell?
         self.Ca_se = Ca_se
@@ -21,6 +20,7 @@ class PinskyRinzel(Pump):
         self.s = s
         self.c = c
         self.q = q
+        self.I_stim = I_stim
 
         # conductances [S * m**-2]
         self.g_Na = 300.
@@ -136,6 +136,11 @@ class PinskyRinzel(Pump):
         dCadt_di = 0
         dCadt_de = 0
 
+        dKdt_si = dKdt_si + I_stim / (self.V_si * self.F * self.Z_K)
+        dKdt_se = dKdt_se - I_stim / (self.V_se * self.F * self.Z_K)
+        dKdt_di = dKdt_di + I_stim / (self.V_di * self.F * self.Z_K) # this is here to make soma and dendrite equal
+        dKdt_de = dKdt_de - I_stim / (self.V_de * self.F * self.Z_K) # this is here to make soma and dendrite equal
+        
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
         dsdt = 0#self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
@@ -170,10 +175,10 @@ if __name__ == "__main__":
     Cl_de0 = 130.
     Ca_de0 = 0.
 
-    k_rest_si = Cl_si0 - (Na_si0 + K_si0)#-0.035
-    k_rest_se = Cl_se0 - (Na_se0 + K_se0)#+0.07
-    k_rest_di = Cl_di0 - (Na_di0 + K_di0)#-0.035
-    k_rest_de = Cl_de0 - (Na_de0 + K_de0)#+0.07
+    k_rest_si = Cl_si0 - (Na_si0 + K_si0)-0.035
+    k_rest_se = Cl_se0 - (Na_se0 + K_se0)+0.07
+    k_rest_di = Cl_di0 - (Na_di0 + K_di0)-0.035
+    k_rest_de = Cl_de0 - (Na_de0 + K_de0)+0.07
 
     n0 = 0.001
     h0 = 0.999
@@ -181,11 +186,18 @@ if __name__ == "__main__":
     c0 = 0.007
     q0 = 0.01
 
+    I_stim = 200e-12
+    stim_dur = 0.0001
+
     def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = k
 
-        my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q)
+        if t < stim_dur:
+            my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q, I_stim)
+        else:
+            my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q, 0)
+
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dkdt()
@@ -198,7 +210,7 @@ if __name__ == "__main__":
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
 
-    init_cell = PinskyRinzel(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n0, h0, s0, c0, q0)
+    init_cell = PinskyRinzel(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n0, h0, s0, c0, q0, I_stim)
 
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
     
@@ -218,15 +230,15 @@ if __name__ == "__main__":
     print 'E_K_s: ', E_K_s
     print 'E_K_d: ', E_K_d
     print 'E_Cl_s: ', E_Cl_s
-    print 'E_Cl_d:', E_Cl_d
+    print 'E_Cl_d: ', E_Cl_d
     print "----------------------------"
 
-    sol = solve_ivp(dkdt, t_span, k0, max_step=0.001)
+    sol = solve_ivp(dkdt, t_span, k0, max_step=0.00001)
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = sol.y
     t = sol.t
 
-    my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q)
+    my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q, I_stim)
     
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
     
