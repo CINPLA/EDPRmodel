@@ -136,10 +136,10 @@ class PinskyRinzel(Pump):
         dCadt_di = 0
         dCadt_de = 0
 
-        dKdt_si = dKdt_si + I_stim / (self.V_si * self.F * self.Z_K)
-        dKdt_se = dKdt_se - I_stim / (self.V_se * self.F * self.Z_K)
-        dKdt_di = dKdt_di + I_stim / (self.V_di * self.F * self.Z_K) # this is here to make soma and dendrite equal
-        dKdt_de = dKdt_de - I_stim / (self.V_de * self.F * self.Z_K) # this is here to make soma and dendrite equal
+        dKdt_si = dKdt_si + self.I_stim / (self.V_si * self.F * self.Z_K)
+        dKdt_se = dKdt_se - self.I_stim / (self.V_se * self.F * self.Z_K)
+        dKdt_di = dKdt_di + self.I_stim / (self.V_di * self.F * self.Z_K) # this is here to make soma and dendrite equal
+        dKdt_de = dKdt_de - self.I_stim / (self.V_de * self.F * self.Z_K) # this is here to make soma and dendrite equal
         
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
@@ -187,17 +187,18 @@ if __name__ == "__main__":
     q0 = 0.01
 
     I_stim = 200e-12
-    stim_dur = 0.0001
+    stim_dur = 0.035
 
     def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = k
 
-        if t < stim_dur:
+        if t > 0.5 and t < 0.5+stim_dur:
             my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q, I_stim)
         else:
             my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q, 0)
 
+        #my_cell.rho = my_cell.rho*1.2
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dkdt()
@@ -206,7 +207,7 @@ if __name__ == "__main__":
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
     
     start_time = time.time()
-    t_span = (0, 100)
+    t_span = (0, 1)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
 
@@ -233,7 +234,7 @@ if __name__ == "__main__":
     print 'E_Cl_d: ', E_Cl_d
     print "----------------------------"
 
-    sol = solve_ivp(dkdt, t_span, k0, max_step=0.00001)
+    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = sol.y
     t = sol.t
