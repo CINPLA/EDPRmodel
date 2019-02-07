@@ -125,6 +125,10 @@ class PinskyRinzel(Pump):
             + self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K)
         return j
 
+    def j_Ca_s(self, phi_dm, E_Ca_d):
+        j = self.g_Ca * self.s**2 * (phi_dm - E_Ca_d)
+        return j
+
     def dkdt(self):
 
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = self.membrane_potentials()
@@ -139,7 +143,7 @@ class PinskyRinzel(Pump):
 
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
-        dsdt = 0#self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
+        dsdt = self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
         dcdt = 0#self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
         dqdt = 0#self.alpha_q(self.Ca_di)*(1-self.q) - self.beta_q()*self.q
 
