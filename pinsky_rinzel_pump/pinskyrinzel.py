@@ -10,7 +10,7 @@ class PinskyRinzel(Pump):
     """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q, I_stim):
-        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de)
+        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim)
         self.Ca_si = Ca_si # flytte disse til LeakyCell?
         self.Ca_se = Ca_se
         self.Ca_di = Ca_di
@@ -20,7 +20,6 @@ class PinskyRinzel(Pump):
         self.s = s
         self.c = c
         self.q = q
-        self.I_stim = I_stim
 
         # conductances [S * m**-2]
         self.g_Na = 300.
@@ -136,11 +135,6 @@ class PinskyRinzel(Pump):
         dCadt_di = 0
         dCadt_de = 0
 
-        dKdt_si = dKdt_si + self.I_stim / (self.V_si * self.F * self.Z_K)
-        dKdt_se = dKdt_se - self.I_stim / (self.V_se * self.F * self.Z_K)
-        dKdt_di = dKdt_di + self.I_stim / (self.V_di * self.F * self.Z_K) # this is here to make soma and dendrite equal
-        dKdt_de = dKdt_de - self.I_stim / (self.V_de * self.F * self.Z_K) # this is here to make soma and dendrite equal
-        
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
         dsdt = 0#self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s

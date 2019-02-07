@@ -8,7 +8,7 @@ class LeakyCell():
     """A two plus two compartment cell model with Na, K, and Cl leak currents.
 
     Methods:
-        constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de)
+        constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim)
         j_Na_s(phi_sm, E_Na_s): compute the Na flux across the soma membrane
         j_K_s(phi_sm, E_K_s): compute the K flux across the soma membrane
         j_Cl_s(phi_sm, E_Cl_s): compute the Cl flux across the soma membrane
@@ -25,7 +25,7 @@ class LeakyCell():
         dkdt(): calculate dk/dt for all ion species k
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de):
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim):
         
         # temperature [K]
         self.T = T
@@ -47,6 +47,9 @@ class LeakyCell():
         self.k_rest_se = k_rest_se
         self.k_rest_di = k_rest_di
         self.k_rest_de = k_rest_de
+
+        # somatic injection current
+        self.I_stim = I_stim
 
         # membrane capacitance [F * m**-2]
         #self.C_sm = 3e-2 # Pinsky and Rinzel, 1994
@@ -207,10 +210,10 @@ class LeakyCell():
         dNadt_se = j_Na_sm*(self.A_s / self.V_se) - j_Na_e*(self.A_e / self.V_se)
         dNadt_de = j_Na_dm*(self.A_d / self.V_de) + j_Na_e*(self.A_e / self.V_de)
 
-        dKdt_si = -j_K_sm*(self.A_s / self.V_si) - j_K_i*(self.A_i / self.V_si)
-        dKdt_di = -j_K_dm*(self.A_d / self.V_di) + j_K_i*(self.A_i / self.V_di)
-        dKdt_se = j_K_sm*(self.A_s / self.V_se) - j_K_e*(self.A_e / self.V_se)
-        dKdt_de = j_K_dm*(self.A_d / self.V_de) + j_K_e*(self.A_e / self.V_de)
+        dKdt_si = -j_K_sm*(self.A_s / self.V_si) - j_K_i*(self.A_i / self.V_si) + self.I_stim / (self.V_si * self.F * self.Z_K)
+        dKdt_di = -j_K_dm*(self.A_d / self.V_di) + j_K_i*(self.A_i / self.V_di) + self.I_stim / (self.V_di * self.F * self.Z_K) # last term is there to make soma and dendrite equal
+        dKdt_se = j_K_sm*(self.A_s / self.V_se) - j_K_e*(self.A_e / self.V_se) - self.I_stim / (self.V_se * self.F * self.Z_K)
+        dKdt_de = j_K_dm*(self.A_d / self.V_de) + j_K_e*(self.A_e / self.V_de) - self.I_stim / (self.V_de * self.F * self.Z_K) # last term is there to make soma and dendrite equal
 
         dCldt_si = -j_Cl_sm*(self.A_s / self.V_si) - j_Cl_i*(self.A_i / self.V_si)
         dCldt_di = -j_Cl_dm*(self.A_d / self.V_di) + j_Cl_i*(self.A_i / self.V_di)
