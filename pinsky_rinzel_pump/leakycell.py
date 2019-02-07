@@ -104,15 +104,15 @@ class LeakyCell():
         return j
 
     def j_Na_d(self, phi_dm, E_Na_d):
-        j = self.g_Na_leak*(phi_dm - E_Na_d) / (self.F*self.Z_Na)
+        j = self.j_Na_s(phi_dm, E_Na_d)
         return j
 
     def j_K_d(self, phi_dm, E_K_d):
-        j = self.g_K_leak*(phi_dm - E_K_d) / (self.F*self.Z_K)    
+        j = self.j_K_s(phi_dm, E_K_d)
         return j
 
     def j_Cl_d(self, phi_dm, E_Cl_d):
-        j = self.g_Cl_leak*(phi_dm - E_Cl_d) / (self.F*self.Z_Cl)
+        j = self.j_Cl_s(phi_dm, E_Cl_d)
         return j
 
     def j_k_diff(self, D_k, tortuosity, k_s, k_d):
@@ -256,7 +256,7 @@ if __name__ == "__main__":
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de
     
     start_time = time.time()
-    t_span = (0, 300)
+    t_span = (0, 50)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0]
 

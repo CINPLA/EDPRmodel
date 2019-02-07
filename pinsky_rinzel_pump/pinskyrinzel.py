@@ -130,7 +130,7 @@ class PinskyRinzel(Pump):
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = self.membrane_potentials()
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de = Pump.dkdt(self)
        
-        #j_Ca_sm = self.j_Ca_s
+        #j_Ca_dm = self.j_Ca
 
         dCadt_si = 0
         dCadt_se = 0
