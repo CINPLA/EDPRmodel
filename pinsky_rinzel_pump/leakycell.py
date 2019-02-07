@@ -185,7 +185,7 @@ class LeakyCell():
         j_K_sm = self.j_K_s(phi_sm, E_K_s)
         j_Cl_sm = self.j_Cl_s(phi_sm, E_Cl_s)
 
-        j_Na_dm = self.j_Na_s(phi_dm, E_Na_d)
+        j_Na_dm = self.j_Na_d(phi_dm, E_Na_d)
         j_K_dm = self.j_K_d(phi_dm, E_K_d)    
         j_Cl_dm = self.j_Cl_d(phi_dm, E_Cl_d)
 
