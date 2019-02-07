@@ -8,7 +8,7 @@ class LeakyCell():
     """A two plus two compartment cell model with Na, K, and Cl leak currents.
 
     Methods:
-        constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim)
+        constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_res_si, k_res_se, k_res_di, k_res_de, I_stim)
         j_Na_s(phi_sm, E_Na_s): compute the Na flux across the soma membrane
         j_K_s(phi_sm, E_K_s): compute the K flux across the soma membrane
         j_Cl_s(phi_sm, E_Cl_s): compute the Cl flux across the soma membrane
@@ -18,14 +18,14 @@ class LeakyCell():
         j_k_diff(D_k, tortuosity, k_s, k_d): compute the axial diffusion flux of ion k
         j_k_drift(D_k, Z_k, tortuosity, k_s, k_d, phi_s, phi_d): compute the axial drift flux of ion k
         conductivity_k(D_k, Z_k, tortuosity, k_s, k_d): compute axial conductivity of ion k
-        total_charge(k, k_rest, V): calculate the total charge within volume V
+        total_charge(k, k_res, V): calculate the total charge within volume V
         nernst_potential(Z, k_i, k_e): calculate the reversal potential of ion k
         reversal_potentials(): calculate the reversal potentials of all ion species
         membrane_potentials(): calculate the membrane potentials
         dkdt(): calculate dk/dt for all ion species k
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim):
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_res_si, k_res_se, k_res_di, k_res_de, I_stim):
         
         # temperature [K]
         self.T = T
@@ -43,10 +43,10 @@ class LeakyCell():
         self.Cl_se = Cl_se 
         self.Cl_di = Cl_di 
         self.Cl_de = Cl_de
-        self.k_rest_si = k_rest_si
-        self.k_rest_se = k_rest_se
-        self.k_rest_di = k_rest_di
-        self.k_rest_de = k_rest_de
+        self.k_res_si = k_res_si
+        self.k_res_se = k_res_se
+        self.k_res_di = k_res_di
+        self.k_res_de = k_res_de
 
         # somatic injection current
         self.I_stim = I_stim
@@ -127,12 +127,12 @@ class LeakyCell():
         sigma = self.F**2 * D_k * Z_k**2 * (k_d + k_s) / (2 * self.R * self.T * tortuosity**2)
         return sigma
 
-    def total_charge(self, k, k_rest, V):
+    def total_charge(self, k, k_res, V):
         Z_k = [self.Z_Na, self.Z_K, self.Z_Cl]
         q = 0.0
         for i in range(0, 3):
             q += Z_k[i]*k[i]
-        q = self.F*(q + k_rest)*V
+        q = self.F*(q + k_res)*V
         return q
 
     def nernst_potential(self, Z, k_i, k_e):
@@ -164,8 +164,8 @@ class LeakyCell():
             + self.conductivity_k(self.D_K, self.Z_K, self.lamda_e, self.K_se, self.K_de) \
             + self.conductivity_k(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de)
 
-        q_di = self.total_charge([self.Na_di, self.K_di, self.Cl_di], self.k_rest_di, self.V_di)
-        q_si = self.total_charge([self.Na_si, self.K_si, self.Cl_si], self.k_rest_si, self.V_si)
+        q_di = self.total_charge([self.Na_di, self.K_di, self.Cl_di], self.k_res_di, self.V_di)
+        q_si = self.total_charge([self.Na_si, self.K_si, self.Cl_si], self.k_res_si, self.V_si)
 
         phi_di = q_di / (self.C_dm * self.A_d)
         phi_se = (phi_di - self.dx * I_i_diff / sigma_i - self.A_e * self.V_si * self.dx * I_e_diff / (self.V_se * self.A_i * sigma_i) - q_si / (self.C_sm * self.A_s)) / (1 + self.A_e*self.V_si*sigma_e/(self.V_se*self.A_i*sigma_i))
@@ -238,10 +238,10 @@ if __name__ == "__main__":
     K_de0 = 3.
     Cl_di0 = 5.
     Cl_de0 = 134.
-    k_rest_si = Cl_si0 - (Na_si0 + K_si0)
-    k_rest_se = Cl_se0 - (Na_se0 + K_se0)
-    k_rest_di = Cl_di0 - (Na_di0 + K_di0)
-    k_rest_de = Cl_de0 - (Na_de0 + K_de0)
+    k_res_si = Cl_si0 - (Na_si0 + K_si0)
+    k_res_se = Cl_se0 - (Na_se0 + K_se0)
+    k_res_di = Cl_di0 - (Na_di0 + K_di0)
+    k_res_de = Cl_de0 - (Na_de0 + K_de0)
 
     I_stim = 0
 
@@ -249,7 +249,7 @@ if __name__ == "__main__":
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = k
 
-        my_cell = LeakyCell(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim)
+        my_cell = LeakyCell(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_res_si, k_res_se, k_res_di, k_res_de, I_stim)
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de = my_cell.dkdt()
 
@@ -260,7 +260,7 @@ if __name__ == "__main__":
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0]
 
-    init_cell = LeakyCell(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim)
+    init_cell = LeakyCell(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, k_res_si, k_res_se, k_res_di, k_res_de, I_stim)
 
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
     
@@ -288,16 +288,16 @@ if __name__ == "__main__":
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de = sol.y
     t = sol.t
 
-    my_cell = LeakyCell(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim)
+    my_cell = LeakyCell(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_res_si, k_res_se, k_res_di, k_res_de, I_stim)
     
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
     
     E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = my_cell.reversal_potentials()
 
-    q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[-1]], my_cell.k_rest_si, my_cell.V_si)
-    q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1]], my_cell.k_rest_se, my_cell.V_se)        
-    q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1]], my_cell.k_rest_di, my_cell.V_di)
-    q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1]], my_cell.k_rest_de, my_cell.V_de)
+    q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[-1]], my_cell.k_res_si, my_cell.V_si)
+    q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1]], my_cell.k_res_se, my_cell.V_se)        
+    q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1]], my_cell.k_res_di, my_cell.V_di)
+    q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1]], my_cell.k_res_de, my_cell.V_de)
     print "total charge at the end (C): ", q_si + q_se + q_di + q_de
 
     print 'elapsed time: ', round(time.time() - start_time, 1), 'seconds'
