@@ -10,11 +10,7 @@ class PinskyRinzel(Pump):
     """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, n, h, s, c, q, I_stim):
-        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim)
-        self.Ca_si = Ca_si # flytte disse til LeakyCell?
-        self.Ca_se = Ca_se
-        self.Ca_di = Ca_di
-        self.Ca_de = Ca_de
+        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim)
         self.n = n
         self.h = h
         self.s = s
@@ -132,7 +128,7 @@ class PinskyRinzel(Pump):
     def dkdt(self):
 
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = self.membrane_potentials()
-        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de = Pump.dkdt(self)
+        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de = Pump.dkdt(self)
        
         #j_Ca_dm = self.j_Ca
 
@@ -175,10 +171,10 @@ if __name__ == "__main__":
     Cl_de0 = 130.
     Ca_de0 = 0.
 
-    k_rest_si = Cl_si0 - (Na_si0 + K_si0)-0.035
-    k_rest_se = Cl_se0 - (Na_se0 + K_se0)+0.07
-    k_rest_di = Cl_di0 - (Na_di0 + K_di0)-0.035
-    k_rest_de = Cl_de0 - (Na_de0 + K_de0)+0.07
+    k_rest_si = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)-0.035
+    k_rest_se = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)+0.07
+    k_rest_di = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)-0.035
+    k_rest_de = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)+0.07
 
     n0 = 0.001
     h0 = 0.999
@@ -215,7 +211,7 @@ if __name__ == "__main__":
 
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
     
-    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = init_cell.reversal_potentials()
+    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = init_cell.reversal_potentials()
 
     print "----------------------------"
     print "Initial values"
@@ -232,6 +228,8 @@ if __name__ == "__main__":
     print 'E_K_d: ', E_K_d
     print 'E_Cl_s: ', E_Cl_s
     print 'E_Cl_d: ', E_Cl_d
+    print 'E_Ca_s: ', E_Ca_s
+    print 'E_Ca_d: ', E_Ca_d
     print "----------------------------"
 
     sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
@@ -243,12 +241,12 @@ if __name__ == "__main__":
     
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
     
-    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d = my_cell.reversal_potentials()
+    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = my_cell.reversal_potentials()
 
-    q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[-1]], my_cell.k_rest_si, my_cell.V_si)
-    q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1]], my_cell.k_rest_se, my_cell.V_se)        
-    q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1]], my_cell.k_rest_di, my_cell.V_di)
-    q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1]], my_cell.k_rest_de, my_cell.V_de)
+    q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[-1], my_cell.Ca_si[-1]], my_cell.k_res_si, my_cell.V_si)
+    q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1], my_cell.Ca_se[-1]], my_cell.k_res_se, my_cell.V_se)        
+    q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1], my_cell.Ca_di[-1]], my_cell.k_res_di, my_cell.V_di)
+    q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1], my_cell.Ca_de[-1]], my_cell.k_res_de, my_cell.V_de)
     print "total charge at the end (C): ", q_si + q_se + q_di + q_de
 
     print 'elapsed time: ', round(time.time() - start_time, 1), 'seconds'
