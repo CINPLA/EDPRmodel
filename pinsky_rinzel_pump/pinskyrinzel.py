@@ -97,11 +97,11 @@ class PinskyRinzel(Pump):
     def chi(self, Ca):
         return min(Ca/2.5e-4, 1.0)
 
-    def alpha_q(self, Ca):
-        return min(20*Ca, 0.01) # maa skaleres 
+    def alpha_q(self):
+        return min(2e4*self.free_Ca_di, 10) 
 
     def beta_q(self):
-        return 0.001 # maa skaleres
+        return 1.0
 
     def m_inf(self, phi_sm):
         return self.alpha_m(phi_sm) / (self.alpha_m(phi_sm) + self.beta_m(phi_sm))
@@ -113,7 +113,8 @@ class PinskyRinzel(Pump):
 
     def j_K_s(self, phi_sm, E_K_s):
         j = Pump.j_K_s(self, phi_sm, E_K_s) \
-            + self.g_DR * self.n * (phi_sm - E_K_s) / (self.F*self.Z_K)
+            + self.g_DR * self.n * (phi_sm - E_K_s) / (self.F*self.Z_K) \
+            + self.g_AHP * self.q * (phi_sm - E_K_s) / (self.F*self.Z_K) # X
         return j
 
     def j_Na_d(self, phi_dm, E_Na_d): # this is added just to make soma and dendrite equal
@@ -121,9 +122,10 @@ class PinskyRinzel(Pump):
             + self.g_Na * self.m_inf(phi_dm)**2 * self.h * (phi_dm - E_Na_d) / (self.F*self.Z_Na)
         return j
 
-    def j_K_d(self, phi_dm, E_K_d): # this is added just to make soma and dendrite equal
+    def j_K_d(self, phi_dm, E_K_d): # remove DR
         j = Pump.j_K_d(self, phi_dm, E_K_d) \
-            + self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K)
+            + self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K) \
+            + self.g_AHP * self.q * (phi_dm - E_K_d) / (self.F*self.Z_K)
         return j
 
     def j_Ca_d(self, phi_dm, E_Ca_d):
@@ -146,16 +148,16 @@ class PinskyRinzel(Pump):
         #dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
         #dCadt_se = dCadt_se + 75*(self.Ca_si - self.Ca0_si)
  
-        dCadt_si = dCadt_si - j_Ca_dm*(self.A_s / self.V_si) - 75*(self.Ca_si - self.Ca0_si)
+        dCadt_si = dCadt_si - j_Ca_dm*(self.A_s / self.V_si) - 75*(self.Ca_si - self.Ca0_si) # membrane flux not supposed to be there
         dCadt_se = dCadt_se + j_Ca_dm*(self.A_s / self.V_se) + 75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
-        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75*(self.Ca_di - self.Ca0_di)
+        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75*(self.Ca_di - self.Ca0_di) # membrane flux not supposed to be there
         dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + 75*self.V_fr_d*(self.Ca_di - self.Ca0_di)
 
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
         dsdt = self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
         dcdt = 0#self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
-        dqdt = 0#self.alpha_q(self.Ca_di)*(1-self.q) - self.beta_q()*self.q
+        dqdt = self.alpha_q()*(1-self.q) - self.beta_q()*self.q
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
@@ -217,7 +219,7 @@ if __name__ == "__main__":
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
     
     start_time = time.time()
-    t_span = (0, 5)
+    t_span = (0, 20)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
 
