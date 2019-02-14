@@ -9,8 +9,8 @@ class PinskyRinzel(Pump):
 
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, Ca0_si, Ca0_di, n, h, s, c, q, I_stim):
-        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, I_stim)
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca0_si, Ca0_di, n, h, s, c, q, I_stim):
+        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, I_stim)
         self.Ca0_si = Ca0_si
         self.Ca0_di = Ca0_di
         self.n = n
@@ -25,6 +25,9 @@ class PinskyRinzel(Pump):
         self.g_Ca = 100.
         self.g_AHP = 8.
         self.g_C = 150.
+
+        self.V_fr_s = self.V_si/self.V_se
+        self.V_fr_d = self.V_di/self.V_de 
 
     def alpha_m(self, phi_sm):
         phi_1 = phi_sm*1e3 + 46.9
@@ -129,20 +132,24 @@ class PinskyRinzel(Pump):
 
     def dkdt(self):
 
-        phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = self.membrane_potentials()
+        phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = Pump.membrane_potentials(self)
+        E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = Pump.reversal_potentials(self)
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de = Pump.dkdt(self)
-       
+
         j_Ca_dm = self.j_Ca_d(phi_dm, E_Ca_d)
 
         dNadt_si = dNadt_si + 3*75*(self.Ca_si - self.Ca0_si)
-        dNadt_se = dNadt_se - 3*75*(self.Ca_si - self.Ca0_si)
+        dNadt_se = dNadt_se - 3*75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
         dNadt_di = dNadt_di + 3*75*(self.Ca_di - self.Ca0_di)
-        dNadt_de = dNadt_de - 3*75*(self.Ca_di - self.Ca0_di)
+        dNadt_de = dNadt_de - 3*75*self.V_fr_d*(self.Ca_di - self.Ca0_di)
 
-        dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
-        dCadt_se = dCadt_se + 75*(self.Ca_si - self.Ca0_si)
+        #dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
+        #dCadt_se = dCadt_se + 75*(self.Ca_si - self.Ca0_si)
+ 
+        dCadt_si = dCadt_si - j_Ca_dm*(self.A_s / self.V_si) - 75*(self.Ca_si - self.Ca0_si)
+        dCadt_se = dCadt_se + j_Ca_dm*(self.A_s / self.V_se) + 75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
         dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75*(self.Ca_di - self.Ca0_di)
-        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + 75*(self.Ca_di - self.Ca0_di)
+        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + 75*self.V_fr_d*(self.Ca_di - self.Ca0_di)
 
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
@@ -161,27 +168,27 @@ if __name__ == "__main__":
     Na_si0 = 18.
     K_si0 = 140.
     Cl_si0 = 6.
-    Ca_si0 = 0.
+    Ca_si0 = 20*50e-6
 
     Na_se0 = 144.
     K_se0 = 4.
     Cl_se0 = 130.
-    Ca_se0 = 0.
+    Ca_se0 = 1.1
 
     Na_di0 = 18.
     K_di0 = 140.
     Cl_di0 = 6.
-    Ca_di0 = 0.
+    Ca_di0 = 20*50e-6
 
     Na_de0 = 144.
     K_de0 = 4.
     Cl_de0 = 130.
-    Ca_de0 = 0.
+    Ca_de0 = 1.1
 
-    k_rest_si = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)-0.035
-    k_rest_se = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)+0.07
-    k_rest_di = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)-0.035
-    k_rest_de = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)+0.07
+    k_res_si = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)-0.035
+    k_res_se = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)+0.07
+    k_res_di = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)-0.035
+    k_res_de = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)+0.07
 
     n0 = 0.001
     h0 = 0.999
@@ -189,7 +196,7 @@ if __name__ == "__main__":
     c0 = 0.007
     q0 = 0.01
 
-    I_stim = 200e-12
+    I_stim = 0#200e-12
     stim_dur = 0.035
 
     def dkdt(t,k):
@@ -197,9 +204,9 @@ if __name__ == "__main__":
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = k
 
         if t > 0.5 and t < 0.5+stim_dur:
-            my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, Ca_si0, Ca_di0, n, h, s, c, q, I_stim)
+            my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q, I_stim)
         else:
-            my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, Ca_si0, Ca_di0, n, h, s, c, q, 0)
+            my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q, 0)
 
         #my_cell.rho = my_cell.rho*1.2
 
@@ -210,11 +217,11 @@ if __name__ == "__main__":
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
     
     start_time = time.time()
-    t_span = (0, 1)
+    t_span = (0, 5)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
 
-    init_cell = PinskyRinzel(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_rest_si, k_rest_se, k_rest_di, k_rest_de, Ca_si0, Ca_di0, n0, h0, s0, c0, q0, I_stim)
+    init_cell = PinskyRinzel(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n0, h0, s0, c0, q0, I_stim)
 
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
     
@@ -244,7 +251,7 @@ if __name__ == "__main__":
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = sol.y
     t = sol.t
 
-    my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_rest_si, k_rest_se, k_rest_di, k_rest_de, Ca_si0, Ca_di0, n, h, s, c, q, I_stim)
+    my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q, I_stim)
     
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
     
@@ -268,6 +275,7 @@ if __name__ == "__main__":
     plt.plot(t, E_Na_s, label='E_Na')
     plt.plot(t, E_K_s, label='E_K')
     plt.plot(t, E_Cl_s, label='E_Cl')
+    plt.plot(t, E_Ca_s, label='E_Ca')
     plt.title('Reversal potentials soma')
     plt.xlabel('time [s]')
     plt.legend()
@@ -276,6 +284,7 @@ if __name__ == "__main__":
     plt.plot(t, E_Na_d, label='E_Na')
     plt.plot(t, E_K_d, label='E_K')
     plt.plot(t, E_Cl_d, label='E_Cl')
+    plt.plot(t, E_Ca_d, label='E_Ca')
     plt.title('Reversal potentials dendrite')
     plt.xlabel('time [s]')
     plt.legend()
@@ -304,6 +313,15 @@ if __name__ == "__main__":
     plt.plot(t, Cl_di, label='Cl_di')
     plt.plot(t, Cl_de, label='Cl_de')
     plt.title('Chloride concentrations')
+    plt.xlabel('time [s]')
+    plt.legend()
+    plt.show()
+
+    plt.plot(t, Ca_si, label='Ca_si')
+    plt.plot(t, Ca_se, label='Ca_se')
+    plt.plot(t, Ca_di, label='Ca_di')
+    plt.plot(t, Ca_de, label='Ca_de')
+    plt.title('Calsium concentrations')
     plt.xlabel('time [s]')
     plt.legend()
     plt.show()
