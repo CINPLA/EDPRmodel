@@ -94,8 +94,8 @@ class PinskyRinzel(Pump):
         beta = beta*1e3
         return beta
 
-    def chi(self, Ca):
-        return min(Ca/2.5e-4, 1.0)
+    def chi(self):
+        return min(self.free_Ca_di/2.5e-4, 1.0)
 
     def alpha_q(self):
         return min(2e4*self.free_Ca_di, 10) 
@@ -111,10 +111,11 @@ class PinskyRinzel(Pump):
             + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s) / (self.F*self.Z_Na)
         return j
 
-    def j_K_s(self, phi_sm, E_K_s):
+    def j_K_s(self, phi_sm, E_K_s): # remove AHP and C
         j = Pump.j_K_s(self, phi_sm, E_K_s) \
             + self.g_DR * self.n * (phi_sm - E_K_s) / (self.F*self.Z_K) \
-            + self.g_AHP * self.q * (phi_sm - E_K_s) / (self.F*self.Z_K) # X
+            + self.g_AHP * self.q * (phi_sm - E_K_s) / (self.F*self.Z_K) \
+            + self.g_C * self.c * self.chi() * (phi_sm - E_K_s) / (self.F*self.Z_K)
         return j
 
     def j_Na_d(self, phi_dm, E_Na_d): # this is added just to make soma and dendrite equal
@@ -125,7 +126,8 @@ class PinskyRinzel(Pump):
     def j_K_d(self, phi_dm, E_K_d): # remove DR
         j = Pump.j_K_d(self, phi_dm, E_K_d) \
             + self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K) \
-            + self.g_AHP * self.q * (phi_dm - E_K_d) / (self.F*self.Z_K)
+            + self.g_AHP * self.q * (phi_dm - E_K_d) / (self.F*self.Z_K) \
+            + self.g_C * self.c * self.chi() * (phi_dm - E_K_d) / (self.F*self.Z_K)
         return j
 
     def j_Ca_d(self, phi_dm, E_Ca_d):
@@ -156,7 +158,7 @@ class PinskyRinzel(Pump):
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
         dsdt = self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
-        dcdt = 0#self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
+        dcdt = self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
         dqdt = self.alpha_q()*(1-self.q) - self.beta_q()*self.q
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
@@ -210,8 +212,6 @@ if __name__ == "__main__":
         else:
             my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q, 0)
 
-        #my_cell.rho = my_cell.rho*1.2
-
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dkdt()
 
@@ -219,7 +219,7 @@ if __name__ == "__main__":
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
     
     start_time = time.time()
-    t_span = (0, 20)
+    t_span = (0, 5)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
 
