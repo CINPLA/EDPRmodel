@@ -111,23 +111,23 @@ class PinskyRinzel(Pump):
             + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s) / (self.F*self.Z_Na)
         return j
 
-    def j_K_s(self, phi_sm, E_K_s): # remove AHP and C
+    def j_K_s(self, phi_sm, E_K_s):
         j = Pump.j_K_s(self, phi_sm, E_K_s) \
-            + self.g_DR * self.n * (phi_sm - E_K_s) / (self.F*self.Z_K) \
-            + self.g_AHP * self.q * (phi_sm - E_K_s) / (self.F*self.Z_K) \
-            + self.g_C * self.c * self.chi() * (phi_sm - E_K_s) / (self.F*self.Z_K)
+            + self.g_DR * self.n * (phi_sm - E_K_s) / (self.F*self.Z_K)
+#            + self.g_AHP * self.q * (phi_sm - E_K_s) / (self.F*self.Z_K) \
+#            + self.g_C * self.c * self.chi() * (phi_sm - E_K_s) / (self.F*self.Z_K)
         return j
 
-    def j_Na_d(self, phi_dm, E_Na_d): # this is added just to make soma and dendrite equal
-        j = Pump.j_Na_d(self, phi_dm, E_Na_d) \
-            + self.g_Na * self.m_inf(phi_dm)**2 * self.h * (phi_dm - E_Na_d) / (self.F*self.Z_Na)
-        return j
+#    def j_Na_d(self, phi_dm, E_Na_d): # this is added just to make soma and dendrite equal
+#        j = Pump.j_Na_d(self, phi_dm, E_Na_d) \
+#            + self.g_Na * self.m_inf(phi_dm)**2 * self.h * (phi_dm - E_Na_d) / (self.F*self.Z_Na)
+#        return j
 
-    def j_K_d(self, phi_dm, E_K_d): # remove DR
+    def j_K_d(self, phi_dm, E_K_d):
         j = Pump.j_K_d(self, phi_dm, E_K_d) \
-            + self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K) \
             + self.g_AHP * self.q * (phi_dm - E_K_d) / (self.F*self.Z_K) \
             + self.g_C * self.c * self.chi() * (phi_dm - E_K_d) / (self.F*self.Z_K)
+            #+ self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K) \
         return j
 
     def j_Ca_d(self, phi_dm, E_Ca_d):
@@ -147,12 +147,11 @@ class PinskyRinzel(Pump):
         dNadt_di = dNadt_di + 3*75*(self.Ca_di - self.Ca0_di)
         dNadt_de = dNadt_de - 3*75*self.V_fr_d*(self.Ca_di - self.Ca0_di)
 
-        #dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
-        #dCadt_se = dCadt_se + 75*(self.Ca_si - self.Ca0_si)
- 
-        dCadt_si = dCadt_si - j_Ca_dm*(self.A_s / self.V_si) - 75*(self.Ca_si - self.Ca0_si) # membrane flux not supposed to be there
-        dCadt_se = dCadt_se + j_Ca_dm*(self.A_s / self.V_se) + 75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
-        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75*(self.Ca_di - self.Ca0_di) # membrane flux not supposed to be there
+        #dCadt_si = dCadt_si - j_Ca_dm*(self.A_s / self.V_si) - 75*(self.Ca_si - self.Ca0_si)
+        #dCadt_se = dCadt_se + j_Ca_dm*(self.A_s / self.V_se) + 75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
+        dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
+        dCadt_se = dCadt_se + 75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
+        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75*(self.Ca_di - self.Ca0_di)
         dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + 75*self.V_fr_d*(self.Ca_di - self.Ca0_di)
 
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
