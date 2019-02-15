@@ -4,7 +4,7 @@ from pinsky_rinzel_pump.leakycell import *
 
 def test_modules():
 
-    test_cell = LeakyCell(279.3, 14., 145., 16., 145., 100., 3., 100., 3., 115., 148., 115., 148., 1, 1, 1, 1, 0, 0, 0, 0, 0)
+    test_cell = LeakyCell(279.3, 14., 145., 16., 145., 100., 3., 100., 3., 115., 148., 115., 148., 1, 1, 1, 1, 0, 0, 0, 0)
 
     assert round(test_cell.nernst_potential(1., 400., 20.), 4) == -0.0721
 
