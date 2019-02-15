@@ -1,4 +1,5 @@
 from pump import Pump
+from somatic_injection_current_K import *
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -209,11 +210,17 @@ if __name__ == "__main__":
     c0 = 0.007
     q0 = 0.01
 
+    I_stim = 400e-12#200e-12 # [A]
+    stim_dur = 0.035
+
     def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = k
 
         my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
+
+        if t > 0.025:# and t < 2+stim_dur:
+            somatic_injection_current_K(my_cell, I_stim)
 
 #        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
 #            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dkdt()
@@ -224,7 +231,7 @@ if __name__ == "__main__":
             my_cell.dndt, my_cell.dhdt, my_cell.dsdt, my_cell.dcdt, my_cell.dqdt
     
     start_time = time.time()
-    t_span = (0, 5)
+    t_span = (0, 1)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
 
@@ -253,7 +260,7 @@ if __name__ == "__main__":
     print 'E_Ca_d: ', E_Ca_d
     print "----------------------------"
 
-    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
+    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-5)
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = sol.y
     t = sol.t
@@ -329,6 +336,13 @@ if __name__ == "__main__":
     plt.plot(t, Ca_di, label='Ca_di')
     plt.plot(t, Ca_de, label='Ca_de')
     plt.title('Calsium concentrations')
+    plt.xlabel('time [s]')
+    plt.legend()
+    plt.show()
+
+#    plt.plot(t, my_cell.free_Ca_si, label='free_Ca_si')
+    plt.plot(t, my_cell.free_Ca_di, label='free_Ca_di')
+    plt.title('Free Calsium concentrations')
     plt.xlabel('time [s]')
     plt.legend()
     plt.show()
