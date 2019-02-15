@@ -97,6 +97,11 @@ class LeakyCell():
         self.g_K_leak = 0.5    # Wei et al. 2014
         self.g_Cl_leak = 1.0   # Wei et al. 2014
 
+        # ion concentration changes
+        if np.isscalar(self.free_Ca_si):
+            self.dNadt_si, self.dNadt_se, self.dNadt_di, self.dNadt_de, self.dKdt_si, self.dKdt_se, self.dKdt_di, self.dKdt_de, \
+                self.dCldt_si, self.dCldt_se, self.dCldt_di, self.dCldt_de, self.dCadt_si, self.dCadt_se, self.dCadt_di, self.dCadt_de = self.dkdt()
+
     def j_Na_s(self, phi_sm, E_Na_s):
         j = self.g_Na_leak*(phi_sm - E_Na_s) / (self.F*self.Z_Na)
         return j 
@@ -292,9 +297,10 @@ if __name__ == "__main__":
 
         my_cell = LeakyCell(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
 
-        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de = my_cell.dkdt()
+        #dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de = my_cell.dkdt()
 
-        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de
+        return my_cell.dNadt_si, my_cell.dNadt_se, my_cell.dNadt_di, my_cell.dNadt_de, my_cell.dKdt_si, my_cell.dKdt_se, my_cell.dKdt_di, my_cell.dKdt_de, \
+            my_cell.dCldt_si, my_cell.dCldt_se, my_cell.dCldt_di, my_cell.dCldt_de, my_cell.dCadt_si, my_cell.dCadt_se, my_cell.dCadt_di, my_cell.dCadt_de
     
     start_time = time.time()
     t_span = (0, 10)

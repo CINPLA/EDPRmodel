@@ -10,7 +10,7 @@ class PinskyRinzel(Pump):
     """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca0_si, Ca0_di, n, h, s, c, q):
-        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
+
         self.Ca0_si = Ca0_si
         self.Ca0_di = Ca0_di
         self.n = n
@@ -26,8 +26,10 @@ class PinskyRinzel(Pump):
         self.g_AHP = 8.
         self.g_C = 150.
 
-        self.V_fr_s = self.V_si/self.V_se
-        self.V_fr_d = self.V_di/self.V_de 
+        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
+
+        if np.isscalar(self.free_Ca_si):
+            self.dndt, self.dhdt, self.dsdt, self.dcdt, self.dqdt = self.dmdt()
 
     def alpha_m(self, phi_sm):
         phi_1 = phi_sm*1e3 + 46.9
@@ -140,29 +142,37 @@ class PinskyRinzel(Pump):
         E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = Pump.reversal_potentials(self)
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de = Pump.dkdt(self)
 
+        V_fr_s = self.V_si/self.V_se
+        V_fr_d = self.V_di/self.V_de 
+
         j_Ca_dm = self.j_Ca_d(phi_dm, E_Ca_d)
 
         dNadt_si = dNadt_si + 3*75*(self.Ca_si - self.Ca0_si)
-        dNadt_se = dNadt_se - 3*75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
+        dNadt_se = dNadt_se - 3*75*V_fr_s*(self.Ca_si - self.Ca0_si)
         dNadt_di = dNadt_di + 3*75*(self.Ca_di - self.Ca0_di)
-        dNadt_de = dNadt_de - 3*75*self.V_fr_d*(self.Ca_di - self.Ca0_di)
+        dNadt_de = dNadt_de - 3*75*V_fr_d*(self.Ca_di - self.Ca0_di)
 
         #dCadt_si = dCadt_si - j_Ca_dm*(self.A_s / self.V_si) - 75*(self.Ca_si - self.Ca0_si)
         #dCadt_se = dCadt_se + j_Ca_dm*(self.A_s / self.V_se) + 75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
         dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
-        dCadt_se = dCadt_se + 75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
+        dCadt_se = dCadt_se + 75*V_fr_s*(self.Ca_si - self.Ca0_si)
         dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75*(self.Ca_di - self.Ca0_di)
-        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + 75*self.V_fr_d*(self.Ca_di - self.Ca0_di)
+        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + 75*V_fr_d*(self.Ca_di - self.Ca0_di)
 
+
+        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
+            dCadt_si, dCadt_se, dCadt_di, dCadt_de
+
+    def dmdt(self):
+        phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = Pump.membrane_potentials(self)
+        
         dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
         dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
         dsdt = self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
         dcdt = self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
         dqdt = self.alpha_q()*(1-self.q) - self.beta_q()*self.q
-
-        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
-            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
-
+        
+        return dndt, dhdt, dsdt, dcdt, dqdt
 
 if __name__ == "__main__":
 
@@ -205,11 +215,13 @@ if __name__ == "__main__":
 
         my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
 
-        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
-            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dkdt()
+#        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
+#            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dkdt()
+        #dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
 
-        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
-            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dndt, dhdt, dsdt, dcdt, dqdt
+        return my_cell.dNadt_si, my_cell.dNadt_se, my_cell.dNadt_di, my_cell.dNadt_de, my_cell.dKdt_si, my_cell.dKdt_se, my_cell.dKdt_di, my_cell.dKdt_de, \
+            my_cell.dCldt_si, my_cell.dCldt_se, my_cell.dCldt_di, my_cell.dCldt_de, my_cell.dCadt_si, my_cell.dCadt_se, my_cell.dCadt_di, my_cell.dCadt_de, \
+            my_cell.dndt, my_cell.dhdt, my_cell.dsdt, my_cell.dcdt, my_cell.dqdt
     
     start_time = time.time()
     t_span = (0, 5)
