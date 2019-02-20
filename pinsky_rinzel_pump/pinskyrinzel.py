@@ -212,7 +212,7 @@ if __name__ == "__main__":
     c0 = 0.007
     q0 = 0.01
 
-    I_stim = 400e-12#200e-12 # [A]
+    I_stim = 200e-12 # [A]
     stim_dur = 0.035
 
     def dkdt(t,k):
