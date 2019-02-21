@@ -3,6 +3,8 @@ from math import fsum
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import time
+import warnings
+warnings.filterwarnings("error")
 
 class LeakyCell(): 
     """A two plus two compartment cell model with Na, K, and Cl leak currents.
@@ -154,25 +156,13 @@ class LeakyCell():
         E_Cl_s = self.nernst_potential(self.Z_Cl, self.Cl_si, self.Cl_se)
         E_Cl_d = self.nernst_potential(self.Z_Cl, self.Cl_di, self.Cl_de)
         try:
-            if self.free_Ca_si + self.Ca_se == 0:
-                E_Ca_s = 0
-            else:
                 E_Ca_s = self.nernst_potential(self.Z_Ca, self.free_Ca_si, self.Ca_se)
         except:
-            if self.free_Ca_si[0] + self.Ca_se[0] == 0:
-                E_Ca_s = 0
-            else:
-                E_Ca_s = self.nernst_potential(self.Z_Ca, self.free_Ca_si, self.Ca_se)
+                E_Ca_s = None
         try:
-            if self.free_Ca_di + self.Ca_de == 0:
-                E_Ca_d = 0
-            else:
                 E_Ca_d = self.nernst_potential(self.Z_Ca, self.free_Ca_di, self.Ca_de)
         except:
-            if self.free_Ca_di[0] + self.Ca_de[0] == 0:
-                E_Ca_d = 0
-            else:
-                E_Ca_d = self.nernst_potential(self.Z_Ca, self.free_Ca_di, self.Ca_de)
+                E_Ca_d = None
         return E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d
 
     def membrane_potentials(self):
