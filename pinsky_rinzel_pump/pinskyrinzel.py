@@ -218,13 +218,14 @@ if __name__ == "__main__":
 
         my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
 
-#        if t > 0.025:# and t < 2+stim_dur:
-            #somatic_injection_current_K(my_cell, I_stim)
-#            somatic_injection_current_res(my_cell, I_stim)
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
         dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
+
+        if t > 0.025:# and t < 2+stim_dur:
+            dKdt_si, dKdt_se = somatic_injection_current_K(my_cell, dKdt_si, dKdt_se, I_stim)
+            #dresdt_si, dresdt_se = somatic_injection_current_res(my_cell, dresdt_si, dresdt_se, I_stim)
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
             dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, \
