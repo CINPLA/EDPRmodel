@@ -54,8 +54,11 @@ def test_charge_conservation():
         my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
             Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
 
-        return my_cell.dNadt_si, my_cell.dNadt_se, my_cell.dNadt_di, my_cell.dNadt_de, my_cell.dKdt_si, my_cell.dKdt_se, my_cell.dKdt_di, my_cell.dKdt_de, \
-            my_cell.dCldt_si, my_cell.dCldt_se, my_cell.dCldt_di, my_cell.dCldt_de, my_cell.dCadt_si, my_cell.dCadt_se, my_cell.dCadt_di, my_cell.dCadt_de
+        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
+            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
+
+        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
+            dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de
 
     t_span = (0, 1000)
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0]
@@ -111,8 +114,11 @@ def test_charge_conservation_w_diffusion():
         my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
             Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
 
-        return my_cell.dNadt_si, my_cell.dNadt_se, my_cell.dNadt_di, my_cell.dNadt_de, my_cell.dKdt_si, my_cell.dKdt_se, my_cell.dKdt_di, my_cell.dKdt_de, \
-            my_cell.dCldt_si, my_cell.dCldt_se, my_cell.dCldt_di, my_cell.dCldt_de, my_cell.dCadt_si, my_cell.dCadt_se, my_cell.dCadt_di, my_cell.dCadt_de
+        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
+            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
+
+        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
+            dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de
 
     t_span = (0, 1000)
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0]

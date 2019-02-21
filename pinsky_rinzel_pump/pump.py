@@ -10,13 +10,10 @@ class Pump(LeakyCell):
     """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de):
+        LeakyCell.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
         self.rho = 1.87e-6
         self.U_kcc2 = 7.00e-7
         self.U_nkcc1 = 2.33e-7
-        LeakyCell.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
-#        self.rho = 1.78e-7
-#        self.U_kcc2 = 6.67e-8
-#        self.U_nkcc1 = 2.22e-8
 
     def j_pump(self, Na_i, K_e):
         j = (self.rho / (1.0 + np.exp((25. - Na_i)/3.))) * (1.0 / (1.0 + np.exp(3.5 - K_e)))
@@ -103,11 +100,11 @@ if __name__ == "__main__":
 
         my_cell = Pump(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
 
- #       dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de = my_cell.dkdt()
+        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
+            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
 
-        return my_cell.dNadt_si, my_cell.dNadt_se, my_cell.dNadt_di, my_cell.dNadt_de, my_cell.dKdt_si, my_cell.dKdt_se, my_cell.dKdt_di, my_cell.dKdt_de, \
-            my_cell.dCldt_si, my_cell.dCldt_se, my_cell.dCldt_di, my_cell.dCldt_de, my_cell.dCadt_si, my_cell.dCadt_se, my_cell.dCadt_di, my_cell.dCadt_de
-#        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de
+        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
+            dCadt_si, dCadt_se, dCadt_di, dCadt_de
     
     start_time = time.time()
     t_span = (0, 10)
