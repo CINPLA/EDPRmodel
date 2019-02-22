@@ -128,7 +128,7 @@ class PinskyRinzel(Pump):
         j = Pump.j_K_d(self, phi_dm, E_K_d) \
             + self.g_AHP * self.q * (phi_dm - E_K_d) / (self.F*self.Z_K) \
             + self.g_C * self.c * self.chi() * (phi_dm - E_K_d) / (self.F*self.Z_K)
-            #+ self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K) \
+#            + self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K) # turn off
         return j
 
     def j_Ca_d(self, phi_dm, E_Ca_d):
@@ -153,12 +153,12 @@ class PinskyRinzel(Pump):
         dNadt_de = dNadt_de - 3*75*V_fr_d*(self.Ca_di - self.Ca0_di)
 
         #dCadt_si = dCadt_si - j_Ca_dm*(self.A_s / self.V_si) - 75*(self.Ca_si - self.Ca0_si)
-        #dCadt_se = dCadt_se + j_Ca_dm*(self.A_s / self.V_se) + 75*self.V_fr_s*(self.Ca_si - self.Ca0_si)
+        #dCadt_se = dCadt_se + j_Ca_dm*(self.A_s / self.V_se) + 75*V_fr_s*(self.Ca_si - self.Ca0_si)
+
         dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
         dCadt_se = dCadt_se + 75*V_fr_s*(self.Ca_si - self.Ca0_si)
         dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75*(self.Ca_di - self.Ca0_di)
         dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + 75*V_fr_d*(self.Ca_di - self.Ca0_di)
-
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     Na_se0 = 144.
     K_se0 = 4.
     Cl_se0 = 130.
-    Ca_se0 = 1.1
+    Ca_se0 = 2.0 #1.1
 
     Na_di0 = 18.
     K_di0 = 140.
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     Na_de0 = 144.
     K_de0 = 4.
     Cl_de0 = 130.
-    Ca_de0 = 1.1
+    Ca_de0 = 2.0 #1.1
 
     k_res_si0 = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)-0.035
     k_res_se0 = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)+0.07
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     c0 = 0.007
     q0 = 0.01
 
-    I_stim = 400e-12 # [A]
+    I_stim = 200e-12 # [A]
     stim_dur = 0.035
 
     def dkdt(t,k):
@@ -218,15 +218,17 @@ if __name__ == "__main__":
 
         my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
 
-        my_cell.dx = 35e-6
+        #my_cell.dx = 35e-6
+        #my_cell.g_Ca = 200
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
         dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
 
-        if t > 0.015:# and t < 2+stim_dur:
+        if t > 0.015: # and t < 0.015+0.035:
             dKdt_si, dKdt_se = somatic_injection_current_K(my_cell, dKdt_si, dKdt_se, I_stim)
-            #dresdt_si, dresdt_se = somatic_injection_current_res(my_cell, dresdt_si, dresdt_se, I_stim)
+            #dKdt_di, dKdt_de = somatic_injection_current_K(my_cell, dKdt_di, dKdt_de, I_stim*100)
+            #dresdt_di, dresdt_de = somatic_injection_current_res(my_cell, dresdt_di, dresdt_de, I_stim)
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
             dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, \
@@ -262,7 +264,7 @@ if __name__ == "__main__":
     print 'E_Ca_d: ', E_Ca_d
     print "----------------------------"
 
-    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-6)
+    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-5)
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q = sol.y
     t = sol.t
@@ -306,43 +308,47 @@ if __name__ == "__main__":
     plt.legend()
     plt.show()
 
-    plt.plot(t, Na_si, label='Na_si')
-    plt.plot(t, Na_se, label='Na_se')
-    plt.plot(t, Na_di, label='Na_di')
-    plt.plot(t, Na_de, label='Na_de')
-    plt.title('Sodium concentrations')
+#    plt.plot(t, Na_si, label='Na_si')
+#    plt.plot(t, Na_se, label='Na_se')
+#    plt.plot(t, Na_di, label='Na_di')
+#    plt.plot(t, Na_de, label='Na_de')
+#    plt.title('Sodium concentrations')
+#    plt.xlabel('time [s]')
+#    plt.legend()
+#    plt.show()
+#
+#    plt.plot(t, K_si, label='K_si')
+#    plt.plot(t, K_se, label='K_se')
+#    plt.plot(t, K_di, label='K_di')
+#    plt.plot(t, K_de, label='K_de')
+#    plt.title('Potassium concentrations')
+#    plt.xlabel('time [s]')
+#    plt.legend()
+#    plt.show()
+#
+#    plt.plot(t, Cl_si, label='Cl_si')
+#    plt.plot(t, Cl_se, label='Cl_se')
+#    plt.plot(t, Cl_di, label='Cl_di')
+#    plt.plot(t, Cl_de, label='Cl_de')
+#    plt.title('Chloride concentrations')
+#    plt.xlabel('time [s]')
+#    plt.legend()
+#    plt.show()
+#
+#    plt.plot(t, Ca_si, label='Ca_si')
+#    plt.plot(t, Ca_se, label='Ca_se')
+#    plt.plot(t, Ca_di, label='Ca_di')
+#    plt.plot(t, Ca_de, label='Ca_de')
+#    plt.title('Calsium concentrations')
+#    plt.xlabel('time [s]')
+#    plt.legend()
+#    plt.show()
+#
+    plt.plot(t, q)
+    plt.title('q')
     plt.xlabel('time [s]')
-    plt.legend()
     plt.show()
-
-    plt.plot(t, K_si, label='K_si')
-    plt.plot(t, K_se, label='K_se')
-    plt.plot(t, K_di, label='K_di')
-    plt.plot(t, K_de, label='K_de')
-    plt.title('Potassium concentrations')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, Cl_si, label='Cl_si')
-    plt.plot(t, Cl_se, label='Cl_se')
-    plt.plot(t, Cl_di, label='Cl_di')
-    plt.plot(t, Cl_de, label='Cl_de')
-    plt.title('Chloride concentrations')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, Ca_si, label='Ca_si')
-    plt.plot(t, Ca_se, label='Ca_se')
-    plt.plot(t, Ca_di, label='Ca_di')
-    plt.plot(t, Ca_de, label='Ca_de')
-    plt.title('Calsium concentrations')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
-
-#    plt.plot(t, my_cell.free_Ca_si, label='free_Ca_si')
+##    plt.plot(t, my_cell.free_Ca_si, label='free_Ca_si')
     plt.plot(t, my_cell.free_Ca_di, label='free_Ca_di')
     plt.title('Free Calsium concentrations')
     plt.xlabel('time [s]')

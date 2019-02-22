@@ -139,7 +139,7 @@ plt.plot(t, Vd, label='Vd')
 plt.legend()
 plt.show()
 
-plt.plot(t,q, label='q')
+plt.plot(t, q, label='q')
 plt.legend()
 plt.show()
 
