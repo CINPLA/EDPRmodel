@@ -224,7 +224,7 @@ if __name__ == "__main__":
             dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt
     
     start_time = time.time()
-    t_span = (0, 1.5)
+    t_span = (0, 0.1)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0]
 
@@ -272,13 +272,15 @@ if __name__ == "__main__":
 
     print 'elapsed time: ', round(time.time() - start_time, 1), 'seconds'
 
+    f1 = plt.figure(1)
     plt.plot(t, phi_sm, '-', label='Vs')
     plt.plot(t, phi_dm, '-', label='Vd')
     plt.title('Membrane potentials')
     plt.xlabel('time [s]')
     plt.legend()
-    plt.show()
+    #plt.show()
 
+    f2 = plt.figure(2)
     plt.plot(t, E_Na_s, label='E_Na')
     plt.plot(t, E_K_s, label='E_K')
     plt.plot(t, E_Cl_s, label='E_Cl')
@@ -286,8 +288,9 @@ if __name__ == "__main__":
     plt.title('Reversal potentials soma')
     plt.xlabel('time [s]')
     plt.legend()
-    plt.show()
+    #plt.show()
 
+    f3 = plt.figure(3)
     plt.plot(t, E_Na_d, label='E_Na')
     plt.plot(t, E_K_d, label='E_K')
     plt.plot(t, E_Cl_d, label='E_Cl')
@@ -333,13 +336,13 @@ if __name__ == "__main__":
 #    plt.legend()
 #    plt.show()
 #
-    plt.plot(t, q)
-    plt.title('q')
-    plt.xlabel('time [s]')
-    plt.show()
-##    plt.plot(t, my_cell.free_Ca_si, label='free_Ca_si')
-    plt.plot(t, my_cell.free_Ca_di, label='free_Ca_di')
-    plt.title('Free Calsium concentrations')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
+#    plt.plot(t, q)
+#    plt.title('q')
+#    plt.xlabel('time [s]')
+#    plt.show()
+###    plt.plot(t, my_cell.free_Ca_si, label='free_Ca_si')
+#    plt.plot(t, my_cell.free_Ca_di, label='free_Ca_di')
+#    plt.title('Free Calsium concentrations')
+#    plt.xlabel('time [s]')
+#    plt.legend()
+#    plt.show()
