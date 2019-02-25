@@ -3,6 +3,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import time
+from somatic_injection_current import *
 
 class Pump(LeakyCell):
     """A two plus two compartment cell model with Na, K and Cl leak currents, and pumps.

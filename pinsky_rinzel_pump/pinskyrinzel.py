@@ -1,6 +1,5 @@
 from pump import Pump
-from somatic_injection_current_K import *
-from somatic_injection_current_res import *
+from somatic_injection_current import *
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -89,7 +88,7 @@ class PinskyRinzel(Pump):
     def beta_c(self, phi_dm):
         phi_7 = phi_dm*1e3 + 53.5
         if phi_dm*1e3 <= -10:
-            beta = 2. * np.exp(-phi_7 / 27.) - self.alpha_c(phi_dm)
+            beta = 2. * np.exp(-phi_7 / 27.) - self.alpha_c(phi_dm)/1e3
         else:
             beta = 0.
         beta = beta*1e3
@@ -115,20 +114,12 @@ class PinskyRinzel(Pump):
     def j_K_s(self, phi_sm, E_K_s):
         j = Pump.j_K_s(self, phi_sm, E_K_s) \
             + self.g_DR * self.n * (phi_sm - E_K_s) / (self.F*self.Z_K)
-#            + self.g_AHP * self.q * (phi_sm - E_K_s) / (self.F*self.Z_K) \
-#            + self.g_C * self.c * self.chi() * (phi_sm - E_K_s) / (self.F*self.Z_K)
         return j
-
-#    def j_Na_d(self, phi_dm, E_Na_d): # this is added just to make soma and dendrite equal
-#        j = Pump.j_Na_d(self, phi_dm, E_Na_d) \
-#            + self.g_Na * self.m_inf(phi_dm)**2 * self.h * (phi_dm - E_Na_d) / (self.F*self.Z_Na)
-#        return j
 
     def j_K_d(self, phi_dm, E_K_d):
         j = Pump.j_K_d(self, phi_dm, E_K_d) \
             + self.g_AHP * self.q * (phi_dm - E_K_d) / (self.F*self.Z_K) \
             + self.g_C * self.c * self.chi() * (phi_dm - E_K_d) / (self.F*self.Z_K)
-#            + self.g_DR * self.n * (phi_dm - E_K_d) / (self.F*self.Z_K) # turn off
         return j
 
     def j_Ca_d(self, phi_dm, E_Ca_d):
@@ -139,8 +130,7 @@ class PinskyRinzel(Pump):
 
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = Pump.membrane_potentials(self)
         E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = Pump.reversal_potentials(self)
-        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, \
-            dresdt_si, dresdt_se, dresdt_di, dresdt_de = Pump.dkdt(self)
+        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = Pump.dkdt(self)
 
         V_fr_s = self.V_si/self.V_se
         V_fr_d = self.V_di/self.V_de 
@@ -151,9 +141,6 @@ class PinskyRinzel(Pump):
         dNadt_se = dNadt_se - 3*75*V_fr_s*(self.Ca_si - self.Ca0_si)
         dNadt_di = dNadt_di + 3*75*(self.Ca_di - self.Ca0_di)
         dNadt_de = dNadt_de - 3*75*V_fr_d*(self.Ca_di - self.Ca0_di)
-
-        #dCadt_si = dCadt_si - j_Ca_dm*(self.A_s / self.V_si) - 75*(self.Ca_si - self.Ca0_si)
-        #dCadt_se = dCadt_se + j_Ca_dm*(self.A_s / self.V_se) + 75*V_fr_s*(self.Ca_si - self.Ca0_si)
 
         dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
         dCadt_se = dCadt_se + 75*V_fr_s*(self.Ca_si - self.Ca0_si)
@@ -186,7 +173,7 @@ if __name__ == "__main__":
     Na_se0 = 144.
     K_se0 = 4.
     Cl_se0 = 130.
-    Ca_se0 = 2.0 #1.1
+    Ca_se0 = 1.1
 
     Na_di0 = 18.
     K_di0 = 140.
@@ -196,12 +183,12 @@ if __name__ == "__main__":
     Na_de0 = 144.
     K_de0 = 4.
     Cl_de0 = 130.
-    Ca_de0 = 2.0 #1.1
+    Ca_de0 = 1.1
 
-    k_res_si0 = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)-0.035
-    k_res_se0 = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)+0.07
-    k_res_di0 = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)-0.035
-    k_res_de0 = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)+0.07
+    k_res_si0 = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0) - 0.035*3.5
+    k_res_se0 = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0) + 0.07*3.5
+    k_res_di0 = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0) - 0.035*3.5
+    k_res_de0 = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0) + 0.07*3.5
 
     n0 = 0.001
     h0 = 0.999
@@ -209,7 +196,7 @@ if __name__ == "__main__":
     c0 = 0.007
     q0 = 0.01
 
-    I_stim = 200e-12 # [A]
+    I_stim = 2000e-12 # [A]
     stim_dur = 0.035
 
     def dkdt(t,k):
@@ -218,24 +205,26 @@ if __name__ == "__main__":
 
         my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
 
-        #my_cell.dx = 35e-6
+        my_cell.A_i = my_cell.A_i*1e3
+        my_cell.A_e = my_cell.A_e*1e3
+        #my_cell.g_Ca = 400 
+        #my_cell.g_DR = 100 
+        #my_cell.g_AHP = 4
         #my_cell.g_Ca = 200
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
         dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
 
-        if t > 0.015: # and t < 0.015+0.035:
-            dKdt_si, dKdt_se = somatic_injection_current_K(my_cell, dKdt_si, dKdt_se, I_stim)
-            #dKdt_di, dKdt_de = somatic_injection_current_K(my_cell, dKdt_di, dKdt_de, I_stim*100)
-            #dresdt_di, dresdt_de = somatic_injection_current_res(my_cell, dresdt_di, dresdt_de, I_stim)
+        if t > 1:
+            dKdt_si, dKdt_se = somatic_injection_current(my_cell, dKdt_si, dKdt_se, my_cell.Z_K, I_stim)
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
             dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, \
             dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt
     
     start_time = time.time()
-    t_span = (0, 0.5)
+    t_span = (0, 1.5)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0]
 
@@ -264,7 +253,7 @@ if __name__ == "__main__":
     print 'E_Ca_d: ', E_Ca_d
     print "----------------------------"
 
-    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-5)
+    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q = sol.y
     t = sol.t

@@ -107,6 +107,7 @@ def dVdt(t, V):
 
     dVsdt = (1./C_m)*( -I_leak_s - I_Na - I_DR + I_ds/p + I_s/p )
     dVddt = (1./C_m)*( -I_leak_d - I_Ca - I_AHP - I_C + I_sd/(1-p) + I_syn/(1-p))
+    #dVddt = (1./C_m)*( -I_leak_d + I_sd/(1-p) + I_syn/(1-p))
     dhdt = alpha_h(Vs)*(1-h) - beta_h(Vs)*h 
     dndt = alpha_n(Vs)*(1-n) - beta_n(Vs)*n
     dsdt = alpha_s(Vd)*(1-s) - beta_s(Vd)*s
@@ -117,7 +118,7 @@ def dVdt(t, V):
     return dVsdt, dVddt, dndt, dhdt, dsdt, dcdt, dqdt, dCadt
 
 
-t_span = (0, 1600)
+t_span = (0, 800)
 
 Vs0 = -64.6
 Vd0 = -64.5
