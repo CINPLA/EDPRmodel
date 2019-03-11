@@ -168,7 +168,7 @@ if __name__ == "__main__":
     Na_si0 = 18.
     K_si0 = 140.
     Cl_si0 = 6.
-    Ca_si0 = 20*50e-6
+    Ca_si0 = 0.001
 
     Na_se0 = 144.
     K_se0 = 4.
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     Na_di0 = 18.
     K_di0 = 140.
     Cl_di0 = 6.
-    Ca_di0 = 20*50e-6
+    Ca_di0 = 0.001
 
     Na_de0 = 144.
     K_de0 = 4.
