@@ -196,7 +196,7 @@ if __name__ == "__main__":
     c0 = 0.007
     q0 = 0.01
 
-    I_stim = 0#2000e-12 # [A]
+    I_stim = 2000e-12 # [A]
     stim_dur = 0.035
 
     def dkdt(t,k):
@@ -205,8 +205,8 @@ if __name__ == "__main__":
 
         my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
 
-        #my_cell.A_i = 2.5e-9 #3e-9  #my_cell.A_i*1e3
-        #my_cell.A_e = 2.5e-9/2 #my_cell.A_e*1e3
+        #my_cell.A_i = 3e-9 #3e-9  #my_cell.A_i*1e3
+        #my_cell.A_e = 1.5e-9 #my_cell.A_e*1e3
         #my_cell.g_Ca = 400 
         #my_cell.g_DR = 100 
         #my_cell.g_AHP = 4
