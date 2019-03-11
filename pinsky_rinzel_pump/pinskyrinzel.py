@@ -65,14 +65,14 @@ class PinskyRinzel(Pump):
         return beta
 
     def alpha_s(self, phi_dm):
-        alpha = 1.6 / (1 + np.exp(-0.072 * (phi_dm*1e3 - 5.)))
-        alpha = alpha*1e3
+        alpha = 1.6 / (1 + np.exp(-0.072 * (phi_dm*1000 - 5.)))
+        alpha = alpha*1000
         return alpha
 
     def beta_s(self, phi_dm):
-        phi_6 = phi_dm*1e3 + 8.9
+        phi_6 = phi_dm*1000 + 8.9
         beta = 0.02 * phi_6 / (np.exp(phi_6 / 5.) - 1.)
-        beta = beta*1e3
+        beta = beta*1000
         return beta
 
     def alpha_c(self, phi_dm):
@@ -106,15 +106,16 @@ class PinskyRinzel(Pump):
     def m_inf(self, phi_sm):
         return self.alpha_m(phi_sm) / (self.alpha_m(phi_sm) + self.beta_m(phi_sm))
 
-    def j_Na_s(self, phi_sm, E_Na_s):
-        j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
-            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s) / (self.F*self.Z_Na)
-        return j
+#    def j_Na_s(self, phi_sm, E_Na_s):
+#        j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
+#            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s) / (self.F*self.Z_Na)
+#        return j
 
     def j_K_s(self, phi_sm, E_K_s):
         j = Pump.j_K_s(self, phi_sm, E_K_s) \
             + self.g_DR * self.n * (phi_sm - E_K_s) / (self.F*self.Z_K)
         return j
+
 
     def j_K_d(self, phi_dm, E_K_d):
         j = Pump.j_K_d(self, phi_dm, E_K_d) \
@@ -122,9 +123,9 @@ class PinskyRinzel(Pump):
             + self.g_C * self.c * self.chi() * (phi_dm - E_K_d) / (self.F*self.Z_K)
         return j
 
-    def j_Ca_d(self, phi_dm, E_Ca_d):
-        j = self.g_Ca * self.s**2 * (phi_dm - E_Ca_d) / (self.F*self.Z_Ca)
-        return j
+#    def j_Ca_d(self, phi_dm, E_Ca_d):
+#        j = self.g_Ca * self.s**2 * (phi_dm - E_Ca_d) / (self.F*self.Z_Ca)
+#        return j
 
     def dkdt(self):
 
@@ -135,17 +136,17 @@ class PinskyRinzel(Pump):
         V_fr_s = self.V_si/self.V_se
         V_fr_d = self.V_di/self.V_de 
 
-        j_Ca_dm = self.j_Ca_d(phi_dm, E_Ca_d)
-
-        dNadt_si = dNadt_si + 3*75*(self.Ca_si - self.Ca0_si)
-        dNadt_se = dNadt_se - 3*75*V_fr_s*(self.Ca_si - self.Ca0_si)
-        dNadt_di = dNadt_di + 3*75*(self.Ca_di - self.Ca0_di)
-        dNadt_de = dNadt_de - 3*75*V_fr_d*(self.Ca_di - self.Ca0_di)
-
-        dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
-        dCadt_se = dCadt_se + 75*V_fr_s*(self.Ca_si - self.Ca0_si)
-        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75*(self.Ca_di - self.Ca0_di)
-        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + 75*V_fr_d*(self.Ca_di - self.Ca0_di)
+#        j_Ca_dm = self.j_Ca_d(phi_dm, E_Ca_d)
+#
+#        dNadt_si = dNadt_si# + 3*75*(self.Ca_si - self.Ca0_si)
+#        dNadt_se = dNadt_se# - 3*75*V_fr_s*(self.Ca_si - self.Ca0_si)
+#        dNadt_di = dNadt_di# + 3*75*(self.Ca_di - self.Ca0_di)
+#        dNadt_de = dNadt_de# - 3*75*V_fr_d*(self.Ca_di - self.Ca0_di)
+#
+#        dCadt_si = dCadt_si# - 75*(self.Ca_si - self.Ca0_si)
+#        dCadt_se = dCadt_se# + 75*V_fr_s*(self.Ca_si - self.Ca0_si)
+#        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di)# - 75*(self.Ca_di - self.Ca0_di)
+#        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de)# + 75*V_fr_d*(self.Ca_di - self.Ca0_di)
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de
@@ -235,9 +236,9 @@ if __name__ == "__main__":
     q_di = init_cell.total_charge([init_cell.Na_di, init_cell.K_di, init_cell.Cl_di, init_cell.Ca_di], init_cell.k_res_di, init_cell.V_di)
     q_de = init_cell.total_charge([init_cell.Na_de, init_cell.K_de, init_cell.Cl_de, init_cell.Ca_de], init_cell.k_res_de, init_cell.V_de)
     print "initial total charge(C): ", q_si + q_se + q_di + q_de
-    print "Q_si (C): ", q_si
+    print "Q_si (C):", q_si
     print "Q_se (C): ", q_se
-    print "Q_di (C): ", q_di
+    print "Q_di (C):", q_di
     print "Q_de (C): ", q_de
 
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
@@ -279,9 +280,9 @@ if __name__ == "__main__":
     q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1], my_cell.Ca_di[-1]], my_cell.k_res_di[-1], my_cell.V_di)
     q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1], my_cell.Ca_de[-1]], my_cell.k_res_de[-1], my_cell.V_de)
     print "total charge at the end (C): ", q_si + q_se + q_di + q_de
-    print "Q_si (C): ", q_si
+    print "Q_si (C):", q_si
     print "Q_se (C): ", q_se
-    print "Q_di (C): ", q_di
+    print "Q_di (C):", q_di
     print "Q_de (C): ", q_de
 
     print 'elapsed time: ', round(time.time() - start_time, 1), 'seconds'
