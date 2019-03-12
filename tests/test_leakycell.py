@@ -259,7 +259,6 @@ def test_charge_symmetry():
     assert abs(q_si + q_se) < EPS
     assert abs(q_di + q_de) < EPS
 
-
 def test_charge_symmetry_w_diffusion():
     """Tests that Q_i = -Q_e when ions diffuse."""
 
@@ -274,7 +273,7 @@ def test_charge_symmetry_w_diffusion():
     Ca_si0 = 0.001
     Ca_se0 = 1.11
 
-    Na_di0 = 18.
+    Na_di0 = 10.
     Na_de0 = 148.
     K_di0 = 101.
     K_de0 = 4.
@@ -314,4 +313,3 @@ def test_charge_symmetry_w_diffusion():
 
     assert abs(q_si + q_se) < EPS
     assert abs(q_di + q_de) < EPS
-
