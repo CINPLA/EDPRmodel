@@ -189,7 +189,7 @@ class LeakyCell():
         q_si = self.total_charge([self.Na_si, self.K_si, self.Cl_si, self.Ca_si], self.k_res_si, self.V_si)
 
         phi_di = q_di / (self.C_dm * self.A_d)
-        phi_se = (phi_di - self.dx * I_i_diff / sigma_i - self.A_e * self.V_si * self.dx * I_e_diff / (self.V_se * self.A_i * sigma_i) - q_si / (self.C_sm * self.A_s)) / (1 + self.A_e*self.V_si*sigma_e/(self.V_se*self.A_i*sigma_i))
+        phi_se = (phi_di - self.dx * I_i_diff / sigma_i - self.A_e * self.dx * I_e_diff / (self.A_i * sigma_i) - q_si / (self.C_sm * self.A_s)) / (1 + self.A_e*sigma_e/(self.A_i*sigma_i))
         phi_si = q_si / (self.C_sm * self.A_s) + phi_se
         phi_de = 0.
         phi_sm = phi_si - phi_se
@@ -227,7 +227,7 @@ class LeakyCell():
             + self.j_k_drift(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de, phi_se, phi_de)
         j_Ca_e = self.j_k_diff(self.D_Ca, self.lamda_e, self.Ca_se, self.Ca_de) \
             + self.j_k_drift(self.D_Ca, self.Z_Ca, self.lamda_e, self.Ca_se, self.Ca_de, phi_se, phi_de)
-        
+
         dNadt_si = -j_Na_sm*(self.A_s / self.V_si) - j_Na_i*(self.A_i / self.V_si)
         dNadt_di = -j_Na_dm*(self.A_d / self.V_di) + j_Na_i*(self.A_i / self.V_di)
         dNadt_se = j_Na_sm*(self.A_s / self.V_se) - j_Na_e*(self.A_e / self.V_se)
@@ -267,8 +267,9 @@ if __name__ == "__main__":
     Cl_se0 = 134.
     Ca_si0 = 0.001
     Ca_se0 = 1.1
-    Na_di0 = 15.
-    Na_de0 = 145.
+
+    Na_di0 = 20.
+    Na_de0 = 150.
     K_di0 = 100.
     K_de0 = 3.
     Cl_di0 = 5.
@@ -276,12 +277,10 @@ if __name__ == "__main__":
     Ca_di0 = 0.001
     Ca_de0 = 1.1
 
-    k_res_si = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)
-    k_res_se = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)
-    k_res_di = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)
-    k_res_de = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)
-
-    I_stim = 200e-12 # [A]
+    k_res_si = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0
+    k_res_se = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0
+    k_res_di = Cl_di0 - Na_di0 - K_di0 - 2*Ca_di0
+    k_res_de = Cl_de0 - Na_de0 - K_de0 - 2*Ca_de0
 
     def dkdt(t,k):
 
@@ -301,22 +300,22 @@ if __name__ == "__main__":
 
     init_cell = LeakyCell(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si, k_res_se, k_res_di, k_res_de)
 
-    q_si = init_cell.total_charge([init_cell.Na_si, init_cell.K_si, init_cell.Cl_si, init_cell.Ca_si], init_cell.k_res_si, init_cell.V_si)
-    q_se = init_cell.total_charge([init_cell.Na_se, init_cell.K_se, init_cell.Cl_se, init_cell.Ca_se], init_cell.k_res_se, init_cell.V_se)        
-    q_di = init_cell.total_charge([init_cell.Na_di, init_cell.K_di, init_cell.Cl_di, init_cell.Ca_di], init_cell.k_res_di, init_cell.V_di)
-    q_de = init_cell.total_charge([init_cell.Na_de, init_cell.K_de, init_cell.Cl_de, init_cell.Ca_de], init_cell.k_res_de, init_cell.V_de)
-    print "initial total charge(C): ", q_si + q_se + q_di + q_de
-    print "Q_si (C): ", q_si
-    print "Q_se (C): ", q_se
-    print "Q_di (C): ", q_di
-    print "Q_de (C): ", q_de
-
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
     
     E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = init_cell.reversal_potentials()
 
+    q_si = init_cell.total_charge([init_cell.Na_si, init_cell.K_si, init_cell.Cl_si, init_cell.Ca_si], init_cell.k_res_si, init_cell.V_si)
+    q_se = init_cell.total_charge([init_cell.Na_se, init_cell.K_se, init_cell.Cl_se, init_cell.Ca_se], init_cell.k_res_se, init_cell.V_se)        
+    q_di = init_cell.total_charge([init_cell.Na_di, init_cell.K_di, init_cell.Cl_di, init_cell.Ca_di], init_cell.k_res_di, init_cell.V_di)
+    q_de = init_cell.total_charge([init_cell.Na_de, init_cell.K_de, init_cell.Cl_de, init_cell.Ca_de], init_cell.k_res_de, init_cell.V_de)
     print "----------------------------"
     print "Initial values"
+    print "----------------------------"
+    print "initial total charge(C): ", q_si + q_se + q_di + q_de
+    print "Q_si (C):", q_si
+    print "Q_se (C): ", q_se
+    print "Q_di (C):", q_di
+    print "Q_de (C): ", q_de
     print "----------------------------"
     print 'phi_si: ', phi_si
     print 'phi_se: ', phi_se
@@ -349,12 +348,15 @@ if __name__ == "__main__":
     q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1], my_cell.Ca_se[-1]], my_cell.k_res_se, my_cell.V_se)        
     q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1], my_cell.Ca_di[-1]], my_cell.k_res_di, my_cell.V_di)
     q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1], my_cell.Ca_de[-1]], my_cell.k_res_de, my_cell.V_de)
+    print "Final values"
+    print "----------------------------"
     print "total charge at the end (C): ", q_si + q_se + q_di + q_de
-    print "Q_si (C): ", q_si
+    print "Q_si (C):", q_si
     print "Q_se (C): ", q_se
-    print "Q_di (C): ", q_di
+    print "Q_di (C):", q_di
     print "Q_de (C): ", q_de
 
+    print "----------------------------"
     print 'elapsed time: ', round(time.time() - start_time, 1), 'seconds'
 
     plt.plot(t, phi_sm, '-', label='Vs')
