@@ -17,14 +17,14 @@ def test_pinskyrinzel():
     Ca_si0 = 0.001
     Ca_se0 = 1.1
 
-    Na_di0 = 12.
-    Na_de0 = 141.
-    K_di0 = 130.
-    K_de0 = 3.
-    Cl_di0 = 7.
-    Cl_de0 = 130.
-    Ca_di0 = 0.0011
-    Ca_de0 = 1.1
+    Na_si0 = 18.
+    Na_se0 = 144.
+    K_si0 = 140.
+    K_se0 = 4.
+    Cl_si0 = 6.
+    Cl_se0 = 130.
+    Ca_si0 = 0.001
+    Ca_se0 = 1.1
 
     k_res_si = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0
     k_res_se = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0
@@ -53,7 +53,7 @@ def test_pinskyrinzel():
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
         dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
 
-        if t > 10 and t < 11:
+        if t > 10 and t < 10.5:
             dKdt_si, dKdt_se = somatic_injection_current(my_cell, dKdt_si, dKdt_se, my_cell.Z_K, I_stim)
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
