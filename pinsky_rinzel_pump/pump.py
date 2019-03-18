@@ -70,30 +70,30 @@ if __name__ == "__main__":
 
     T = 309.14
 
-    Na_si0 = 15.
-    K_si0 = 100.
-    Cl_si0 = 5.
-    Ca_si0 = 0.
+    Na_si0 = 18.
+    K_si0 = 140.
+    Cl_si0 = 6.
+    Ca_si0 = 0.001
 
-    Na_se0 = 145.
-    K_se0 = 3.
-    Cl_se0 = 134.
-    Ca_se0 = 0.
+    Na_se0 = 144.
+    K_se0 = 4.
+    Cl_se0 = 130.
+    Ca_se0 = 1.1 
 
-    Na_di0 = 15.
-    K_di0 = 100.
-    Cl_di0 = 5.
-    Ca_di0 = 0.
+    Na_di0 = 18.
+    K_di0 = 140.
+    Cl_di0 = 6.
+    Ca_di0 = 0.001
 
-    Na_de0 = 145.
-    K_de0 = 3.
-    Cl_de0 = 134.
-    Ca_de0 = 0.
+    Na_de0 = 144.
+    K_de0 = 4.
+    Cl_de0 = 130.
+    Ca_de0 = 1.1
 
-    k_res_si = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)#-0.035
-    k_res_se = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)#+0.07
-    k_res_di = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)#-0.035
-    k_res_de = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)#+0.07
+    k_res_si = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0 #-0.035
+    k_res_se = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0 #+0.07
+    k_res_di = Cl_di0 - Na_di0 - K_di0 - 2*Ca_di0 #-0.035
+    k_res_de = Cl_de0 - Na_de0 - K_de0 - 2*Ca_de0 #+0.07
 
     def dkdt(t,k):
 
@@ -104,11 +104,14 @@ if __name__ == "__main__":
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
 
+        #if t > 1 and t < 200:
+        #    dKdt_si, dKdt_se = somatic_injection_current(my_cell, dKdt_si, dKdt_se, my_cell.Z_K, 500e-12)
+
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de
     
     start_time = time.time()
-    t_span = (0, 10)
+    t_span = (0, 5)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0]
 

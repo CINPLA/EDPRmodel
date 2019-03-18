@@ -8,21 +8,21 @@ def test_pump():
     
     EPS = 1e-14
 
-    Na_si0 = 15.
-    Na_se0 = 145.
-    K_si0 = 100.
-    K_se0 = 3.
-    Cl_si0 = 115.
-    Cl_se0 = 148.
+    Na_si0 = 18.
+    Na_se0 = 144.
+    K_si0 = 140.
+    K_se0 = 4.
+    Cl_si0 = 6.
+    Cl_se0 = 130.
     Ca_si0 = 0.001
     Ca_se0 = 1.1
 
     Na_di0 = 12.
     Na_de0 = 141.
-    K_di0 = 120.
+    K_di0 = 130.
     K_de0 = 3.
-    Cl_di0 = 115.
-    Cl_de0 = 148.
+    Cl_di0 = 7.
+    Cl_de0 = 130.
     Ca_di0 = 0.0011
     Ca_de0 = 1.1
 
