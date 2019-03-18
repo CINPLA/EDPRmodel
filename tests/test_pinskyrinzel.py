@@ -37,7 +37,7 @@ def test_pinskyrinzel():
     c0 = 0.007
     q0 = 0.01
 
-    I_stim = 500e-12 # [A]
+    I_stim = 2000e-12 # [A]
 
     def dkdt(t,k):
 
@@ -46,11 +46,14 @@ def test_pinskyrinzel():
         my_cell = PinskyRinzel(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
             Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
 
+        my_cell.A_i = 3e-9
+        my_cell.A_e = 1.5e-9
+
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
         dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
 
-        if t > 1 and t < 200:
+        if t > 1 and t < 11:
             dKdt_si, dKdt_se = somatic_injection_current(my_cell, dKdt_si, dKdt_se, my_cell.Z_K, I_stim)
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
