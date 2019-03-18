@@ -61,7 +61,7 @@ def test_pinskyrinzel():
 
     t_span = (0, 100)
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, n0, h0, s0, c0, q0]
-    sol = solve_ivp(dkdt, t_span, k0, max_step=0.001)
+    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = sol.y
     
