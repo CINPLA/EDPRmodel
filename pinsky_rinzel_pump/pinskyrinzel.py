@@ -98,7 +98,7 @@ class PinskyRinzel(Pump):
         return min(self.free_Ca_di/2.5e-4, 1.0)
 
     def alpha_q(self):
-        return min(2e4*self.free_Ca_di, 10) 
+        return min(2e4*self.free_Ca_di, 10.0) 
 
     def beta_q(self):
         return 1.0
@@ -153,10 +153,10 @@ class PinskyRinzel(Pump):
     def dmdt(self):
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = Pump.membrane_potentials(self)
         
-        dndt = self.alpha_n(phi_sm)*(1-self.n) - self.beta_n(phi_sm)*self.n
-        dhdt = self.alpha_h(phi_sm)*(1-self.h) - self.beta_h(phi_sm)*self.h 
-        dsdt = self.alpha_s(phi_dm)*(1-self.s) - self.beta_s(phi_dm)*self.s
-        dcdt = self.alpha_c(phi_dm)*(1-self.c) - self.beta_c(phi_dm)*self.c
-        dqdt = self.alpha_q()*(1-self.q) - self.beta_q()*self.q
+        dndt = self.alpha_n(phi_sm)*(1.0-self.n) - self.beta_n(phi_sm)*self.n
+        dhdt = self.alpha_h(phi_sm)*(1.0-self.h) - self.beta_h(phi_sm)*self.h 
+        dsdt = self.alpha_s(phi_dm)*(1.0-self.s) - self.beta_s(phi_dm)*self.s
+        dcdt = self.alpha_c(phi_dm)*(1.0-self.c) - self.beta_c(phi_dm)*self.c
+        dqdt = self.alpha_q()*(1.0-self.q) - self.beta_q()*self.q
         
         return dndt, dhdt, dsdt, dcdt, dqdt

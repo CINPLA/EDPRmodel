@@ -29,7 +29,7 @@ for i in range(len(V)):
 q_inf = np.zeros(len(Ca))
 tau_q = np.zeros(len(Ca))
 for i in range(len(Ca)):
-    q_inf[i] = min(2e4*Ca[i], 10) / (min(2e4*Ca[i], 10) + 1)
+    q_inf[i] = min(2e4*Ca[i], 10.0) / (min(2e4*Ca[i], 10.0) + 1)
     tau_q[i] = 1.0 / (min(2e4*Ca[i],10) + 1)
 
 f1 = plt.figure(1)

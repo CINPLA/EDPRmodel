@@ -4,23 +4,21 @@ from pinsky_rinzel_pump.somatic_injection_current import *
 T = 309.14
 
 Na_si0 = 18.
-K_si0 = 140.
-Cl_si0 = 6.
-Ca_si0 = 0.001
-
 Na_se0 = 144.
+K_si0 = 140.
 K_se0 = 4.
+Cl_si0 = 6.
 Cl_se0 = 130.
+Ca_si0 = 0.001/50.
 Ca_se0 = 1.1
 
 Na_di0 = 18.
-K_di0 = 140.
-Cl_di0 = 6.
-Ca_di0 = 0.001
-
 Na_de0 = 144.
+K_di0 = 140.
 K_de0 = 4.
+Cl_di0 = 6.
 Cl_de0 = 130.
+Ca_di0 = 0.001/50.
 Ca_de0 = 1.1
 
 k_res_si0 = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0 - 0.1225
@@ -44,8 +42,12 @@ def dkdt(t,k):
     my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
 
     my_cell.A_i = 3e-9 #3e-9
-    my_cell.A_e = 1.5e-9 #1.5e-9
-    #my_cell.g_Ca = 50
+    my_cell.A_e = 3e-9 #1.5e-9
+    #my_cell.A_s = my_cell.A_s/2 
+    #my_cell.A_d = my_cell.A_d/2 
+    #my_cell.g_Na = 0
+    #my_cell.g_C = 0
+    #my_cell.g_Ca = my_cell.g_Ca*5
 
     #print t
 
@@ -53,15 +55,17 @@ def dkdt(t,k):
         dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
     dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
 
-    if t > 3:
+    if t > 3:# and t < 3.01:
         dKdt_si, dKdt_se = somatic_injection_current(my_cell, dKdt_si, dKdt_se, my_cell.Z_K, I_stim)
+        #dKdt_di, dKdt_de = somatic_injection_current(my_cell, dKdt_di, dKdt_de, my_cell.Z_K, I_stim)
+        #dresdt_si, dresdt_se = somatic_injection_current(my_cell, dresdt_si, dresdt_se, 1.0, I_stim)
 
     return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
         dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, \
         dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt
 
 start_time = time.time()
-t_span = (0, 3.25)
+t_span = (0, 3.3)
 
 k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0]
 
