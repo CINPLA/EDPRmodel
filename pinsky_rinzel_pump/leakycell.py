@@ -29,7 +29,7 @@ class LeakyCell():
         dkdt(): calculate dk/dt for all ion species k
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de):
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha):
         
         # temperature [K]
         self.T = T
@@ -64,16 +64,17 @@ class LeakyCell():
 #        self.C_sm = 1e-2 # Wei et al. 2014
 #        self.C_dm = 1e-2 # Wei et al. 2014
        
-        # volumes and areas 
-        self.A_s = 200e-12  # [m**2]
-        self.A_d = 200e-12  # [m**2]
-        self.A_i = 2*self.A_s  # [m**2]
-        self.A_e = self.A_s  # [m**2]
-        self.V_si = 4000e-18 # [m**3]
-        self.V_di = 4000e-18 # [m**3]
-        self.V_se = 2000e-18 # [m**3]
-        self.V_de = 2000e-18 # [m**3]
-        self.dx = 667e-6     # [m]
+        # volumes and areas
+        self.alpha = alpha
+        self.A_s = 200e-12             # [m**2]
+        self.A_d = 200e-12             # [m**2]
+        self.A_i = self.alpha*self.A_s # [m**2]
+        self.A_e = self.A_i/2.         # [m**2]
+        self.V_si = 4000e-18           # [m**3]
+        self.V_di = 4000e-18           # [m**3]
+        self.V_se = 2000e-18           # [m**3]
+        self.V_de = 2000e-18           # [m**3]
+        self.dx = 667e-6               # [m]
 
         # diffusion constants [m**2 s**-1]
         self.D_Na = 1.33e-9 # Halnes et al. 2013
