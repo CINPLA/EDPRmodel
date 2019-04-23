@@ -136,7 +136,6 @@ class PinskyRinzel(Pump):
         V_fr_d = self.V_di/self.V_de 
 
         j_Ca_dm = self.j_Ca_d(phi_dm, E_Ca_d)
-        j_Ca_sm = self.j_Ca_d(phi_sm, E_Ca_s)
 
         dNadt_si = dNadt_si + 2*75.*(self.Ca_si - self.Ca0_si)
         dNadt_se = dNadt_se - 2*75.*V_fr_s*(self.Ca_si - self.Ca0_si)

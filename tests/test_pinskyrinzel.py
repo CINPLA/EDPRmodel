@@ -5,6 +5,8 @@ from pinsky_rinzel_pump.somatic_injection_current import *
 def test_pinskyrinzel():
     """Tests that no charge disappear.
        Tests charge symmetry."""
+   
+    alpha = 1.0
     
     EPS = 1e-14
 
@@ -37,17 +39,14 @@ def test_pinskyrinzel():
     c0 = 0.007
     q0 = 0.01
 
-    I_stim = 2000e-12 # [A]
+    I_stim = 10e-12 # [A]
 
     def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = k
 
         my_cell = PinskyRinzel(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
-            Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
-
-        my_cell.A_i = 3e-9
-        my_cell.A_e = 1.5e-9
+            Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q)
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
@@ -66,7 +65,7 @@ def test_pinskyrinzel():
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q = sol.y
     
     test_cell = PinskyRinzel(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
-        Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, Ca_si0, Ca_di0, n, h, s, c, q)
+        Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q)
 
     q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1]], k_res_si, test_cell.V_si)
     q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1]], k_res_se, test_cell.V_se)        
