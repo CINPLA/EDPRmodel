@@ -95,10 +95,10 @@ class PinskyRinzel(Pump):
         return beta
 
     def chi(self):
-        return min(self.free_Ca_di/2.5e-4, 1.0)
+        return min((self.free_Ca_di-99.8e-6)/2.5e-4, 1.0) # abs??
 
     def alpha_q(self):
-        return min(2e4*self.free_Ca_di, 10.0) 
+        return min(2e4*(self.free_Ca_di-99.8e-6), 10.0) 
 
     def beta_q(self):
         return 1.0
@@ -136,16 +136,17 @@ class PinskyRinzel(Pump):
         V_fr_d = self.V_di/self.V_de 
 
         j_Ca_dm = self.j_Ca_d(phi_dm, E_Ca_d)
+        j_Ca_sm = self.j_Ca_d(phi_sm, E_Ca_s)
 
-        dNadt_si = dNadt_si + 3*75*(self.Ca_si - self.Ca0_si)
-        dNadt_se = dNadt_se - 3*75*V_fr_s*(self.Ca_si - self.Ca0_si)
-        dNadt_di = dNadt_di + 3*75*(self.Ca_di - self.Ca0_di)
-        dNadt_de = dNadt_de - 3*75*V_fr_d*(self.Ca_di - self.Ca0_di)
+        dNadt_si = dNadt_si + 2*75.*(self.Ca_si - self.Ca0_si)
+        dNadt_se = dNadt_se - 2*75.*V_fr_s*(self.Ca_si - self.Ca0_si)
+        dNadt_di = dNadt_di + 2*75.*(self.Ca_di - self.Ca0_di)
+        dNadt_de = dNadt_de - 2*75.*V_fr_d*(self.Ca_di - self.Ca0_di)
 
-        dCadt_si = dCadt_si - 75*(self.Ca_si - self.Ca0_si)
-        dCadt_se = dCadt_se + 75*V_fr_s*(self.Ca_si - self.Ca0_si)
-        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75*(self.Ca_di - self.Ca0_di)
-        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + 75*V_fr_d*(self.Ca_di - self.Ca0_di)
+        dCadt_si = dCadt_si - 75.*(self.Ca_si - self.Ca0_si)
+        dCadt_se = dCadt_se + V_fr_s*75.*(self.Ca_si - self.Ca0_si)
+        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75.*(self.Ca_di - self.Ca0_di)
+        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + V_fr_d*75.*(self.Ca_di - self.Ca0_di)
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de

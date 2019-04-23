@@ -61,18 +61,18 @@ class LeakyCell():
         # membrane capacitance [F * m**-2]
         self.C_sm = 3e-2 # Pinsky and Rinzel, 1994
         self.C_dm = 3e-2 # Pinsky and Rinzel, 1994
-        #self.C_sm = 1e-2 # Wei et al. 2014
-        #self.C_dm = 1e-2 # Wei et al. 2014
+#        self.C_sm = 1e-2 # Wei et al. 2014
+#        self.C_dm = 1e-2 # Wei et al. 2014
        
         # volumes and areas 
-        self.A_s = 9000e-12  # [m**2]
-        self.A_d = 9000e-12  # [m**2]
-        self.A_i = 3e-12     # [m**2]
-        self.A_e = 1.5e-12   # [m**2]
-        self.V_si = 2000e-18 # [m**3]
-        self.V_di = 2000e-18 # [m**3]
-        self.V_se = 1000e-18 # [m**3]
-        self.V_de = 1000e-18 # [m**3]
+        self.A_s = 200e-12  # [m**2]
+        self.A_d = 200e-12  # [m**2]
+        self.A_i = 2*self.A_s  # [m**2]
+        self.A_e = self.A_s  # [m**2]
+        self.V_si = 4000e-18 # [m**3]
+        self.V_di = 4000e-18 # [m**3]
+        self.V_se = 2000e-18 # [m**3]
+        self.V_de = 2000e-18 # [m**3]
         self.dx = 667e-6     # [m]
 
         # diffusion constants [m**2 s**-1]
@@ -159,7 +159,7 @@ class LeakyCell():
         try:
                 E_Ca_s = self.nernst_potential(self.Z_Ca, self.free_Ca_si, self.Ca_se)
         except:
-                E_Ca_s = None
+                E_Ca_s = None                
         try:
                 E_Ca_d = self.nernst_potential(self.Z_Ca, self.free_Ca_di, self.Ca_de)
         except:
