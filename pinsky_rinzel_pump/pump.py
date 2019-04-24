@@ -69,25 +69,44 @@ class Pump(LeakyCell):
 if __name__ == "__main__":
 
     T = 309.14
+    alpha = 2
+
+#    Na_si0 = 18.
+#    K_si0 = 140.
+#    Cl_si0 = 6.
+#    Ca_si0 = 0.001
+#
+#    Na_se0 = 144.
+#    K_se0 = 4.
+#    Cl_se0 = 130.
+#    Ca_se0 = 1.1 
+#
+#    Na_di0 = 18.
+#    K_di0 = 140.
+#    Cl_di0 = 6.
+#    Ca_di0 = 0.001
+#
+#    Na_de0 = 144.
+#    K_de0 = 4.
+#    Cl_de0 = 130.
+#    Ca_de0 = 1.1
 
     Na_si0 = 18.
-    K_si0 = 140.
-    Cl_si0 = 6.
-    Ca_si0 = 0.001
-
     Na_se0 = 144.
+    K_si0 = 140.
     K_se0 = 4.
+    Cl_si0 = 6.
     Cl_se0 = 130.
-    Ca_se0 = 1.1 
+    Ca_si0 = 0.001
+    Ca_se0 = 1.1
 
-    Na_di0 = 18.
-    K_di0 = 140.
-    Cl_di0 = 6.
-    Ca_di0 = 0.001
-
-    Na_de0 = 144.
-    K_de0 = 4.
+    Na_di0 = 12.
+    Na_de0 = 141.
+    K_di0 = 130.
+    K_de0 = 3.
+    Cl_di0 = 7.
     Cl_de0 = 130.
+    Ca_di0 = 0.0011
     Ca_de0 = 1.1
 
     k_res_si = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0 #-0.035
@@ -99,7 +118,7 @@ if __name__ == "__main__":
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = k
 
-        my_cell = Pump(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
+        my_cell = Pump(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
@@ -111,11 +130,11 @@ if __name__ == "__main__":
             dCadt_si, dCadt_se, dCadt_di, dCadt_de
     
     start_time = time.time()
-    t_span = (0, 5)
+    t_span = (0, 2)
 
     k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0]
 
-    init_cell = Pump(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si, k_res_se, k_res_di, k_res_de)
+    init_cell = Pump(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
 
     q_si = init_cell.total_charge([init_cell.Na_si, init_cell.K_si, init_cell.Cl_si, init_cell.Ca_si], init_cell.k_res_si, init_cell.V_si)
     q_se = init_cell.total_charge([init_cell.Na_se, init_cell.K_se, init_cell.Cl_se, init_cell.Ca_se], init_cell.k_res_se, init_cell.V_se)        
@@ -150,12 +169,12 @@ if __name__ == "__main__":
     print 'E_Ca_d:', E_Ca_d
     print "----------------------------"
 
-    sol = solve_ivp(dkdt, t_span, k0, max_step=0.001)
+    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = sol.y
     t = sol.t
 
-    my_cell = Pump(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de)
+    my_cell = Pump(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
     
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
     
