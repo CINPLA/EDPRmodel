@@ -147,7 +147,7 @@ def test_charge_conservation_w_diffusion():
 def test_charge_conservation_with_K_stimulus():
     """Tests that no charge disappear."""
  
-    alpha = 0.5
+    alpha = 1.0
 
     EPS = 1e-14
 
@@ -174,7 +174,7 @@ def test_charge_conservation_with_K_stimulus():
     k_res_di = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)
     k_res_de = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)
 
-    I_stim = 500e-12 # [A]
+    I_stim = 100e-12 # [A]
 
     def dkdt(t,k):
 
