@@ -4,7 +4,7 @@ from pinskyrinzelwrapper import pinskyrinzel
 
 model = un.Model(run=pinskyrinzel, labels=["Time (s)", "Membrane potential (V)"], interpolate=True)
 
-parameters = {"I_stim": 1500e-12,
+parameters = {"I_stim": 1e-12,
               "g_Na": 300.,
               "g_DR": 150.}
 
