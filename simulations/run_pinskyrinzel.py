@@ -69,7 +69,7 @@ sigma_i = (init_cell.conductivity_k(init_cell.D_Na, init_cell.Z_Na, init_cell.la
     + init_cell.conductivity_k(init_cell.D_K, init_cell.Z_K, init_cell.lamda_i, init_cell.K_si, init_cell.K_di) \
     + init_cell.conductivity_k(init_cell.D_Cl, init_cell.Z_Cl, init_cell.lamda_i, init_cell.Cl_si, init_cell.Cl_di) \
     + init_cell.conductivity_k(init_cell.D_Ca, init_cell.Z_Ca, init_cell.lamda_i, init_cell.free_Ca_si, init_cell.free_Ca_di))/init_cell.dx
-print "sigma:", sigma_i
+print("sigma:", sigma_i)
 ###
 
 phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
@@ -81,31 +81,31 @@ q_se = init_cell.total_charge([init_cell.Na_se, init_cell.K_se, init_cell.Cl_se,
 q_di = init_cell.total_charge([init_cell.Na_di, init_cell.K_di, init_cell.Cl_di, init_cell.Ca_di], init_cell.k_res_di, init_cell.V_di)
 q_de = init_cell.total_charge([init_cell.Na_de, init_cell.K_de, init_cell.Cl_de, init_cell.Ca_de], init_cell.k_res_de, init_cell.V_de)
 
-print "----------------------------"
-print "Initial values"
-print "----------------------------"
-print "initial total charge(C): ", q_si + q_se + q_di + q_de
-print "Q_si (C):", q_si
-print "Q_se (C): ", q_se
-print "Q_di (C):", q_di
-print "Q_de (C): ", q_de
-print "----------------------------"
-print "potentials [mV]"
-print 'phi_si: ', round(phi_si*1000)
-print 'phi_se: ', round(phi_se*1000)
-print 'phi_di: ', round(phi_di*1000)
-print 'phi_de: ', round(phi_de*1000)
-print 'phi_sm: ', round(phi_sm*1000)
-print 'phi_dm: ', round(phi_dm*1000)
-print 'E_Na_s: ', round(E_Na_s*1000)
-print 'E_Na_d: ', round(E_Na_d*1000)
-print 'E_K_s: ', round(E_K_s*1000)
-print 'E_K_d: ', round(E_K_d*1000)
-print 'E_Cl_s: ', round(E_Cl_s*1000)
-print 'E_Cl_d: ', round(E_Cl_d*1000)
-print 'E_Ca_s: ', round(E_Ca_s*1000)
-print 'E_Ca_d: ', round(E_Ca_d*1000)
-print "----------------------------"
+print("----------------------------")
+print("Initial values")
+print("----------------------------")
+print("initial total charge(C): ", q_si + q_se + q_di + q_de)
+print("Q_si (C):", q_si)
+print("Q_se (C): ", q_se)
+print("Q_di (C):", q_di)
+print("Q_de (C): ", q_de)
+print("----------------------------")
+print("potentials [mV]")
+print('phi_si: ', round(phi_si*1000))
+print('phi_se: ', round(phi_se*1000))
+print('phi_di: ', round(phi_di*1000))
+print('phi_de: ', round(phi_de*1000))
+print('phi_sm: ', round(phi_sm*1000))
+print('phi_dm: ', round(phi_dm*1000))
+print('E_Na_s: ', round(E_Na_s*1000))
+print('E_Na_d: ', round(E_Na_d*1000))
+print('E_K_s: ', round(E_K_s*1000))
+print('E_K_d: ', round(E_K_d*1000))
+print('E_Cl_s: ', round(E_Cl_s*1000))
+print('E_Cl_d: ', round(E_Cl_d*1000))
+print('E_Ca_s: ', round(E_Ca_s*1000))
+print('E_Ca_d: ', round(E_Ca_d*1000))
+print("----------------------------")
 
 sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
 
@@ -122,16 +122,16 @@ q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[
 q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1], my_cell.Ca_se[-1]], my_cell.k_res_se[-1], my_cell.V_se)        
 q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1], my_cell.Ca_di[-1]], my_cell.k_res_di[-1], my_cell.V_di)
 q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1], my_cell.Ca_de[-1]], my_cell.k_res_de[-1], my_cell.V_de)
-print "Final values"
-print "----------------------------"
-print "total charge at the end (C): ", q_si + q_se + q_di + q_de
-print "Q_si (C):", q_si
-print "Q_se (C): ", q_se
-print "Q_di (C):", q_di
-print "Q_de (C): ", q_de
+print("Final values")
+print("----------------------------")
+print("total charge at the end (C): ", q_si + q_se + q_di + q_de)
+print("Q_si (C):", q_si)
+print("Q_se (C): ", q_se)
+print("Q_di (C):", q_di)
+print("Q_de (C): ", q_de)
 
-print "----------------------------"
-print 'elapsed time: ', round(time.time() - start_time, 1), 'seconds'
+print("----------------------------")
+print('elapsed time: ', round(time.time() - start_time, 1), 'seconds')
 
 f1 = plt.figure(1)
 plt.plot(t, phi_sm*1000, '-', label='V_s')

@@ -1,9 +1,9 @@
-from leakycell import LeakyCell
+from .leakycell import LeakyCell
 import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import time
-from somatic_injection_current import *
+from .somatic_injection_current import *
 
 class Pump(LeakyCell):
     """A two plus two compartment cell model with Na, K and Cl leak currents, and pumps.
@@ -140,34 +140,34 @@ if __name__ == "__main__":
     q_se = init_cell.total_charge([init_cell.Na_se, init_cell.K_se, init_cell.Cl_se, init_cell.Ca_se], init_cell.k_res_se, init_cell.V_se)        
     q_di = init_cell.total_charge([init_cell.Na_di, init_cell.K_di, init_cell.Cl_di, init_cell.Ca_di], init_cell.k_res_di, init_cell.V_di)
     q_de = init_cell.total_charge([init_cell.Na_de, init_cell.K_de, init_cell.Cl_de, init_cell.Ca_de], init_cell.k_res_de, init_cell.V_de)
-    print "initial total charge(C): ", q_si + q_se + q_di + q_de
-    print "Q_si (C): ", q_si
-    print "Q_se (C): ", q_se
-    print "Q_di (C): ", q_di
-    print "Q_de (C): ", q_de
+    print("initial total charge(C): ", q_si + q_se + q_di + q_de)
+    print("Q_si (C): ", q_si)
+    print("Q_se (C): ", q_se)
+    print("Q_di (C): ", q_di)
+    print("Q_de (C): ", q_de)
 
     phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
     
     E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = init_cell.reversal_potentials()
 
-    print "----------------------------"
-    print "Initial values"
-    print "----------------------------"
-    print 'phi_si: ', phi_si
-    print 'phi_se: ', phi_se
-    print 'phi_di: ', phi_di
-    print 'phi_de: ', phi_de
-    print 'phi_sm: ', phi_sm
-    print 'phi_dm: ', phi_dm
-    print 'E_Na_s: ', E_Na_s
-    print 'E_Na_d: ', E_Na_d
-    print 'E_K_s: ', E_K_s
-    print 'E_K_d: ', E_K_d
-    print 'E_Cl_s: ', E_Cl_s
-    print 'E_Cl_d:', E_Cl_d
-    print 'E_Ca_s: ', E_Ca_s
-    print 'E_Ca_d:', E_Ca_d
-    print "----------------------------"
+    print("----------------------------")
+    print("Initial values")
+    print("----------------------------")
+    print('phi_si: ', phi_si)
+    print('phi_se: ', phi_se)
+    print('phi_di: ', phi_di)
+    print('phi_de: ', phi_de)
+    print('phi_sm: ', phi_sm)
+    print('phi_dm: ', phi_dm)
+    print('E_Na_s: ', E_Na_s)
+    print('E_Na_d: ', E_Na_d)
+    print('E_K_s: ', E_K_s)
+    print('E_K_d: ', E_K_d)
+    print('E_Cl_s: ', E_Cl_s)
+    print('E_Cl_d:', E_Cl_d)
+    print('E_Ca_s: ', E_Ca_s)
+    print('E_Ca_d:', E_Ca_d)
+    print("----------------------------")
 
     sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
 
@@ -184,13 +184,13 @@ if __name__ == "__main__":
     q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1], my_cell.Ca_se[-1]], my_cell.k_res_se, my_cell.V_se)        
     q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1], my_cell.Ca_di[-1]], my_cell.k_res_di, my_cell.V_di)
     q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1], my_cell.Ca_de[-1]], my_cell.k_res_de, my_cell.V_de)
-    print "total charge at the end (C): ", q_si + q_se + q_di + q_de
-    print "Q_si (C): ", q_si
-    print "Q_se (C): ", q_se
-    print "Q_di (C): ", q_di
-    print "Q_de (C): ", q_de
+    print("total charge at the end (C): ", q_si + q_se + q_di + q_de)
+    print("Q_si (C): ", q_si)
+    print("Q_se (C): ", q_se)
+    print("Q_di (C): ", q_di)
+    print("Q_de (C): ", q_de)
     
-    print 'elapsed time: ', round(time.time() - start_time, 1), 'seconds'
+    print('elapsed time: ', round(time.time() - start_time, 1), 'seconds')
 
     plt.plot(t, phi_sm, '-', label='Vs')
     plt.plot(t, phi_dm, '-', label='Vd')

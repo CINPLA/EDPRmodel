@@ -1,5 +1,5 @@
-from pump import Pump
-from somatic_injection_current import *
+from .pump import Pump
+from .somatic_injection_current import *
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import numpy as np
