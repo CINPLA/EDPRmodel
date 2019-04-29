@@ -1,6 +1,6 @@
 language: python
 python:
-  - "2.7"
+  - "3.6"
 
 notifications:
   email:
@@ -10,8 +10,8 @@ notifications:
     on_failure: never
 
 install:
-  - pip install scipy
-  - pip install matplotlib
+  - pip3 install scipy
+  - pip3 install matplotlib
 
 script:
-  - python -m pytest
+  - python3 -m pytest
