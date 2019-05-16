@@ -8,25 +8,26 @@ warnings.filterwarnings("error")
 from .somatic_injection_current import *
 
 class LeakyCell(): 
-    """A two plus two compartment neuron model with Na, K, and Cl leak currents.
+    """A two plus two compartment neuron model with Na+, K+, and Cl- leak currents.
 
-    Methods:
-        constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, \
-            k_res_si, k_res_se, k_res_di, k_res_de, alpha)
-        j_Na_s(phi_sm, E_Na_s): compute the Na flux across the somatic membrane
-        j_K_s(phi_sm, E_K_s): compute the K flux across the somatic membrane
-        j_Cl_s(phi_sm, E_Cl_s): compute the Cl flux across the somatic membrane
-        j_Na_d(phi_dm, E_Na_d): compute the Na flux across the dendritic membrane
-        j_K_d(phi_dm, E_K_d): compute the K flux across the dendritic membrane
-        j_Cl_d(phi_dm, E_Cl_d): compute the Cl flux across the dendritic membrane
-        j_k_diff(D_k, tortuosity, k_s, k_d): compute the axial diffusion flux of ion k
-        j_k_drift(D_k, Z_k, tortuosity, k_s, k_d, phi_s, phi_d): compute the axial drift flux of ion k
-        conductivity_k(D_k, Z_k, tortuosity, k_s, k_d): compute axial conductivity of ion k
-        total_charge(k, k_res, V): calculate the total charge within volume V
-        nernst_potential(Z, k_i, k_e): calculate the reversal potential of ion k
-        reversal_potentials(): calculate the reversal potentials of all ion species
-        membrane_potentials(): calculate the membrane potentials
-        dkdt(): calculate dk/dt for all ion species k
+    Methods
+    -------
+    constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, \
+        Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+    j_Na_s(phi_sm, E_Na_s): compute the Na+ flux across the somatic membrane
+    j_K_s(phi_sm, E_K_s): compute the K+ flux across the somatic membrane
+    j_Cl_s(phi_sm, E_Cl_s): compute the Cl- flux across the somatic membrane
+    j_Na_d(phi_dm, E_Na_d): compute the Na+ flux across the dendritic membrane
+    j_K_d(phi_dm, E_K_d): compute the K+ flux across the dendritic membrane
+    j_Cl_d(phi_dm, E_Cl_d): compute the Cl- flux across the dendritic membrane
+    j_k_diff(D_k, tortuosity, k_s, k_d): compute the axial diffusion flux of ion k
+    j_k_drift(D_k, Z_k, tortuosity, k_s, k_d, phi_s, phi_d): compute the axial drift flux of ion k
+    conductivity_k(D_k, Z_k, tortuosity, k_s, k_d): compute axial conductivity of ion k
+    total_charge(k, k_res, V): calculate the total charge within volume V
+    nernst_potential(Z, k_i, k_e): calculate the reversal potential of ion k
+    reversal_potentials(): calculate the reversal potentials of all ion species
+    membrane_potentials(): calculate the membrane potentials
+    dkdt(): calculate dk/dt for all ion species k
     """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha):

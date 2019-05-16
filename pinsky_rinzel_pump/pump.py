@@ -6,8 +6,25 @@ import time
 from .somatic_injection_current import *
 
 class Pump(LeakyCell):
-    """A two plus two compartment cell model with Na, K and Cl leak currents, and pumps.
+    """A two plus two compartment neuron model with Na, K and Cl leak currents and pumps.
 
+    Attributes
+    ----------
+    LeakyCell (Class)
+
+    Methods
+    -------
+    constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, \
+        Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+    j_pump(Na_i, K_e): compute the Na+/K+ pump flux across given membrane
+    j_kcc2(K_i, K_e, Cl_i, Cl_e): compute the K+/Cl- co-transporter flux across given membrane
+    j_nkcc1(self, Na_i, Na_e, K_i, K_e, Cl_i, Cl_e): compute the Na+/K+/Cl- co-transporter flux across given membrane
+    j_Na_s(phi_sm, E_Na_s): compute the Na+ flux across the somatic membrane
+    j_K_s(phi_sm, E_K_s): compute the K+ flux across the somatic membrane
+    j_Cl_s(phi_sm, E_Cl_s): compute the Cl- flux across the somatic membrane
+    j_Na_d(phi_dm, E_Na_d): compute the Na+ flux across the dendritic membrane
+    j_K_d(phi_dm, E_K_d): compute the K+ flux across the dendritic membrane
+    j_Cl_d(phi_dm, E_Cl_d): compute the Cl- flux across the dendritic membrane
     """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha):

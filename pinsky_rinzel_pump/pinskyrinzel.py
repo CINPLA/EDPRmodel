@@ -8,6 +8,26 @@ import time
 class PinskyRinzel(Pump):
     """ A two plus two compartment cell model with Pinsky-Rinzel mechanisms and pumps.
 
+    Attributes
+    ----------
+    Pump (Class)
+
+    Methods
+    -------
+    constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, \
+        Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, \
+        Ca0_si, Ca0_di, n, h, s, c, q)
+    alpha_m(phi_sm), beta_m(phi_sm), alpha_h(phi_sm), beta_h(phi_sm),
+    alpha_n(phi_sm), beta_n(phi_sm), alpha_s(phi_dm), beta_s(phi_dm),
+    alpha_c(phi_dm), beta_c(phi_dm), chi(), alpha_q(), beta_q(),
+    m_inf(phi_sm): compute the rate coefficients of the gating particles
+    j_Na_s(phi_sm, E_Na_s): compute the Na+ flux across the somatic membrane
+    j_K_s(phi_sm, E_K_s): compute the K+ flux across the somatic membrane
+    j_Cl_s(phi_sm, E_Cl_s): compute the Cl- flux across the somatic membrane
+    j_Na_d(phi_dm, E_Na_d): compute the Na+ flux across the dendritic membrane
+    j_K_d(phi_dm, E_K_d): compute the K+ flux across the dendritic membrane
+    j_Cl_d(phi_dm, E_Cl_d): compute the Cl- flux across the dendritic membrane
+    dkdt(): calculate dk/dt for all ion species k and rest charges
     """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca0_si, Ca0_di, n, h, s, c, q):
