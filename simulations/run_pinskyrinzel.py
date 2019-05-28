@@ -21,8 +21,8 @@ Cl_de0 = 100.
 Ca_di0 = 20*100e-6
 Ca_de0 = 1.1
 
-res_i = -65e-3*3e-2*200e-12/(4000e-18*9.648e4)
-res_e = -65e-3*3e-2*200e-12/(2000e-18*9.648e4)
+res_i = -65e-3*3e-2*100e-12/(2000e-18*9.648e4)
+res_e = -65e-3*3e-2*100e-12/(1000e-18*9.648e4)
 
 k_res_si0 = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0 + res_i
 k_res_se0 = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0 - res_e
