@@ -81,7 +81,7 @@ def pinskyrinzel(g_Na, g_DR):
     return time, phi_sm, info
 
 if __name__ == "__main__":
-    time, phi, info = pinskyrinzel(315, 150)
+    time, phi, info = pinskyrinzel(300, 150)
     import matplotlib.pyplot as plt
     plt.plot(time, phi)
     plt.show()

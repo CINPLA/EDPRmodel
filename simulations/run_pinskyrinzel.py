@@ -21,8 +21,8 @@ Cl_de0 = 100.
 Ca_di0 = 20*100e-6
 Ca_de0 = 1.1
 
-res_i = -65e-3*3e-2*100e-12/(2000e-18*9.648e4)
-res_e = -65e-3*3e-2*100e-12/(1000e-18*9.648e4)
+res_i = -65e-3*3e-2*200e-12/(4000e-18*9.648e4)
+res_e = -65e-3*3e-2*200e-12/(2000e-18*9.648e4)
 
 k_res_si0 = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0 + res_i
 k_res_se0 = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0 - res_e
@@ -35,9 +35,12 @@ s0 = 0.009
 c0 = 0.007
 q0 = 0.01
 
+#I_stim = 2e-12 # [A]
 I_stim = 5e-12 # [A]
+#I_stim = 0.5e-12 # [A]
 
 alpha = (12.5/12.5)*2.0
+#alpha = (2.5/12.5)*2.0
 
 def dkdt(t,k):
 
@@ -45,11 +48,13 @@ def dkdt(t,k):
 
     my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q)
 
+    #my_cell.g_Ca = 81
 
     dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
         dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
     dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
 
+    #if t > 1:
     dresdt_si, dresdt_se = somatic_injection_current(my_cell, dresdt_si, dresdt_se, 1.0, I_stim)
 
     return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
@@ -57,12 +62,11 @@ def dkdt(t,k):
         dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt
 
 start_time = time.time()
-t_span = (0, 1)
+t_span = (0, 2)
 
 k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0]
 
 init_cell = PinskyRinzel(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, alpha, Ca_si0, Ca_di0, n0, h0, s0, c0, q0)
-
 
 ###
 sigma_i = (init_cell.conductivity_k(init_cell.D_Na, init_cell.Z_Na, init_cell.lamda_i, init_cell.Na_si, init_cell.Na_di) \
@@ -118,6 +122,10 @@ phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
 
 E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = my_cell.reversal_potentials()
 
+#np.savez('figure1_MJ', t=t, phi_sm=phi_sm, phi_dm=phi_dm, q=q, free_Ca_di=my_cell.free_Ca_di)
+#np.savez('vobbel_MJ', t=t, phi_sm=phi_sm, phi_dm=phi_dm, q=q, free_Ca_di=my_cell.free_Ca_di)
+np.savez('gNa_mintest', t=t, phi_sm=phi_sm, phi_dm=phi_dm)
+
 q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[-1], my_cell.Ca_si[-1]], my_cell.k_res_si[-1], my_cell.V_si)
 q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1], my_cell.Ca_se[-1]], my_cell.k_res_se[-1], my_cell.V_se)        
 q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1], my_cell.Ca_di[-1]], my_cell.k_res_di[-1], my_cell.V_di)
@@ -142,12 +150,12 @@ plt.ylabel('[mV]')
 plt.legend()
 
 f2 = plt.figure(2)
-plt.plot(t, phi_si, '-', label='V_si')
+#plt.plot(t, phi_si, '-', label='V_si')
 plt.plot(t, phi_se, '-', label='V_se')
-plt.plot(t, phi_di, '-', label='V_di')
-plt.plot(t, np.ones(len(t))*phi_de, '-', label='V_de')
-plt.plot(t, phi_sm, '--', label='V_ms')
-plt.plot(t, phi_dm, '--', label='V_md')
+#plt.plot(t, phi_di, '-', label='V_di')
+#plt.plot(t, np.ones(len(t))*phi_de, '-', label='V_de')
+#plt.plot(t, phi_sm, '--', label='V_ms')
+#plt.plot(t, phi_dm, '--', label='V_md')
 plt.title('Potentials')
 plt.xlabel('time [s]')
 plt.legend()
