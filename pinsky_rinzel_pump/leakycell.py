@@ -56,8 +56,8 @@ class LeakyCell():
         self.k_res_se = k_res_se
         self.k_res_di = k_res_di
         self.k_res_de = k_res_de
-        self.free_Ca_si = 0.05*Ca_si
-        self.free_Ca_di = 0.05*Ca_di
+        self.free_Ca_si = 0.01*Ca_si
+        self.free_Ca_di = 0.01*Ca_di
 
         # membrane capacitance [F * m**-2]
         self.C_sm = 3e-2 # Pinsky and Rinzel, 1994
@@ -67,14 +67,14 @@ class LeakyCell():
        
         # volumes and areas
         self.alpha = alpha
-        self.A_s = 200e-12             # [m**2]
-        self.A_d = 200e-12             # [m**2]
+        self.A_s = 616e-12             # [m**2]
+        self.A_d = 616e-12             # [m**2]
         self.A_i = self.alpha*self.A_s # [m**2]
         self.A_e = self.A_i/2.         # [m**2]
-        self.V_si = 4000e-18           # [m**3]
-        self.V_di = 4000e-18           # [m**3]
-        self.V_se = 2000e-18           # [m**3]
-        self.V_de = 2000e-18           # [m**3]
+        self.V_si = 1437e-18           # [m**3]
+        self.V_di = 1437e-18           # [m**3]
+        self.V_se = 718.5e-18           # [m**3]
+        self.V_de = 718.5e-18           # [m**3]
         self.dx = 667e-6               # [m]
 
         # diffusion constants [m**2 s**-1]
