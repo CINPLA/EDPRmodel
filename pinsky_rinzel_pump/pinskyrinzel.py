@@ -45,7 +45,7 @@ class PinskyRinzel(Pump):
         # conductances [S * m**-2]
         self.g_Na = 300.
         self.g_DR = 150.
-        self.g_Ca = 100.
+        self.g_Ca = 93.
         self.g_AHP = 8.
         self.g_C = 150.
 
