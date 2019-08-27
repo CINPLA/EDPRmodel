@@ -158,14 +158,8 @@ class LeakyCell():
         E_K_d = self.nernst_potential(self.Z_K, self.K_di, self.K_de)
         E_Cl_s = self.nernst_potential(self.Z_Cl, self.Cl_si, self.Cl_se)
         E_Cl_d = self.nernst_potential(self.Z_Cl, self.Cl_di, self.Cl_de)
-        try:
-                E_Ca_s = self.nernst_potential(self.Z_Ca, self.free_Ca_si, self.Ca_se)
-        except:
-                E_Ca_s = None                
-        try:
-                E_Ca_d = self.nernst_potential(self.Z_Ca, self.free_Ca_di, self.Ca_de)
-        except:
-                E_Ca_d = None
+        E_Ca_s = self.nernst_potential(self.Z_Ca, self.free_Ca_si, self.Ca_se)
+        E_Ca_d = self.nernst_potential(self.Z_Ca, self.free_Ca_di, self.Ca_de)
         return E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d
 
     def membrane_potentials(self):
