@@ -36,19 +36,17 @@ c0 = 0.007
 q0 = 0.01
 
 #I_stim = 2e-12 # [A]
-I_stim = 5e-12 # [A]
+I_stim = 15e-12 # [A]
 #I_stim = 0.5e-12 # [A]
 
-alpha = (12.5/12.5)*2.0
-#alpha = (2.5/12.5)*2.0
+#alpha = (12.5/12.5)*2.0
+alpha = (2.5/12.5)*2.0
 
 def dkdt(t,k):
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q = k
 
     my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q)
-
-    #my_cell.g_Ca = 81
 
     dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
         dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
