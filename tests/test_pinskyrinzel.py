@@ -16,7 +16,7 @@ def test_pinskyrinzel():
     K_se0 = 4.
     Cl_si0 = 6.
     Cl_se0 = 130.
-    Ca_si0 = 0.001
+    Ca_si0 = 0.01
     Ca_se0 = 1.1
 
     Na_di0 = 18.
@@ -25,7 +25,7 @@ def test_pinskyrinzel():
     K_de0 = 4.
     Cl_di0 = 6.
     Cl_de0 = 130.
-    Ca_di0 = 0.001
+    Ca_di0 = 0.01
     Ca_de0 = 1.1
 
     k_res_si = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0
