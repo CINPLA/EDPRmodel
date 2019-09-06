@@ -48,39 +48,39 @@ class Pump(LeakyCell):
     def j_Na_s(self, phi_sm, E_Na_s):
         j = LeakyCell.j_Na_s(self, phi_sm, E_Na_s) \
             + 3*self.j_pump(self.Na_si, self.K_se) \
-            - self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
+            + self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
         return j
        
     def j_K_s(self, phi_sm, E_K_s):
         j = LeakyCell.j_K_s(self, phi_sm, E_K_s) \
             - 2*self.j_pump(self.Na_si, self.K_se) \
             + self.j_kcc2(self.K_si, self.K_se, self.Cl_si, self.Cl_se) \
-            - self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
+            + self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
         return j
 
     def j_Cl_s(self, phi_sm, E_Cl_s):
         j = LeakyCell.j_Cl_s(self, phi_sm, E_Cl_s) \
             + self.j_kcc2(self.K_si, self.K_se, self.Cl_si, self.Cl_se) \
-            - 2*self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
+            + 2*self.j_nkcc1(self.Na_si, self.Na_se, self.K_si, self.K_se, self.Cl_si, self.Cl_se)
         return j
             
     def j_Na_d(self, phi_dm, E_Na_d):
         j = LeakyCell.j_Na_d(self, phi_dm, E_Na_d) \
             + 3*self.j_pump(self.Na_di, self.K_de) \
-            - self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
+            + self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
         return j
 
     def j_K_d(self, phi_dm, E_K_d):
         j = LeakyCell.j_K_d(self, phi_dm, E_K_d) \
             - 2*self.j_pump(self.Na_di, self.K_de) \
             + self.j_kcc2(self.K_di, self.K_de, self.Cl_di, self.Cl_de) \
-            - self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
+            + self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
         return j
 
     def j_Cl_d(self, phi_dm, E_Cl_d):
         j = LeakyCell.j_Cl_d(self, phi_dm, E_Cl_d) \
             + self.j_kcc2(self.K_di, self.K_de, self.Cl_di, self.Cl_de) \
-            - 2*self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
+            + 2*self.j_nkcc1(self.Na_di, self.Na_de, self.K_di, self.K_de, self.Cl_di, self.Cl_de)
         return j
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 from pinsky_rinzel_pump.pinskyrinzel import *
+from pinsky_rinzel_pump.leakycell import *
 from pinsky_rinzel_pump.somatic_injection_current import *
 
 T = 309.14
@@ -34,39 +35,36 @@ h0 = 0.999
 s0 = 0.009
 c0 = 0.007
 q0 = 0.01
+z0 = 1
 
-#I_stim = 2e-12 # [A]
-I_stim = 5e-12 # [A]
-#I_stim = 0.5e-12 # [A]
+I_stim = 25e-12 # [A]
 
 alpha = (12.5/12.5)*2.0
-#alpha = (2.5/12.5)*2.0
 
 def dkdt(t,k):
 
-    Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q = k
+    Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q, z = k
 
-    my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q)
+    my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q, z)
 
-    #my_cell.g_Ca = 81
 
     dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
         dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
-    dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
+    dndt, dhdt, dsdt, dcdt, dqdt, dzdt = my_cell.dmdt()
 
-    #if t > 1:
-    dresdt_si, dresdt_se = somatic_injection_current(my_cell, dresdt_si, dresdt_se, 1.0, I_stim)
+    if t < 3:
+        dresdt_si, dresdt_se = somatic_injection_current(my_cell, dresdt_si, dresdt_se, 1.0, I_stim)
 
     return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
         dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, \
-        dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt
+        dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt, dzdt
 
 start_time = time.time()
-t_span = (0, 2)
+t_span = (0, 120)
 
-k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0]
+k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0, z0]
 
-init_cell = PinskyRinzel(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, alpha, Ca_si0, Ca_di0, n0, h0, s0, c0, q0)
+init_cell = PinskyRinzel(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, alpha, Ca_si0, Ca_di0, n0, h0, s0, c0, q0, z0)
 
 ###
 sigma_i = (init_cell.conductivity_k(init_cell.D_Na, init_cell.Z_Na, init_cell.lamda_i, init_cell.Na_si, init_cell.Na_di) \
@@ -90,9 +88,9 @@ print("Initial values")
 print("----------------------------")
 print("initial total charge(C): ", q_si + q_se + q_di + q_de)
 print("Q_si (C):", q_si)
-print("Q_se (C): ", q_se)
+print("Q_se (C):", q_se)
 print("Q_di (C):", q_di)
-print("Q_de (C): ", q_de)
+print("Q_de (C):", q_de)
 print("----------------------------")
 print("potentials [mV]")
 print('phi_si: ', round(phi_si*1000))
@@ -113,10 +111,10 @@ print("----------------------------")
 
 sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
 
-Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q = sol.y
+Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q, z = sol.y
 t = sol.t
 
-my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q)
+my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q, z)
 
 phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
 
@@ -124,7 +122,6 @@ E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = my_cell.reversal_
 
 #np.savez('figure1_MJ', t=t, phi_sm=phi_sm, phi_dm=phi_dm, q=q, free_Ca_di=my_cell.free_Ca_di)
 #np.savez('vobbel_MJ', t=t, phi_sm=phi_sm, phi_dm=phi_dm, q=q, free_Ca_di=my_cell.free_Ca_di)
-np.savez('gNa_mintest', t=t, phi_sm=phi_sm, phi_dm=phi_dm)
 
 q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[-1], my_cell.Ca_si[-1]], my_cell.k_res_si[-1], my_cell.V_si)
 q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1], my_cell.Ca_se[-1]], my_cell.k_res_se[-1], my_cell.V_se)        
@@ -134,9 +131,9 @@ print("Final values")
 print("----------------------------")
 print("total charge at the end (C): ", q_si + q_se + q_di + q_de)
 print("Q_si (C):", q_si)
-print("Q_se (C): ", q_se)
+print("Q_se (C):", q_se)
 print("Q_di (C):", q_di)
-print("Q_de (C): ", q_de)
+print("Q_de (C):", q_de)
 
 print("----------------------------")
 print('elapsed time: ', round(time.time() - start_time, 1), 'seconds')
@@ -147,18 +144,18 @@ plt.plot(t, phi_dm*1000, '-', label='V_d')
 plt.title('Membrane potentials')
 plt.xlabel('time [s]')
 plt.ylabel('[mV]')
-plt.legend()
+plt.legend(loc='upper right')
 
-f2 = plt.figure(2)
-#plt.plot(t, phi_si, '-', label='V_si')
-plt.plot(t, phi_se, '-', label='V_se')
-#plt.plot(t, phi_di, '-', label='V_di')
-#plt.plot(t, np.ones(len(t))*phi_de, '-', label='V_de')
-#plt.plot(t, phi_sm, '--', label='V_ms')
-#plt.plot(t, phi_dm, '--', label='V_md')
-plt.title('Potentials')
-plt.xlabel('time [s]')
-plt.legend()
+#f2 = plt.figure(2)
+##plt.plot(t, phi_si, '-', label='V_si')
+#plt.plot(t, phi_se, '-', label='V_se')
+##plt.plot(t, phi_di, '-', label='V_di')
+##plt.plot(t, np.ones(len(t))*phi_de, '-', label='V_de')
+##plt.plot(t, phi_sm, '--', label='V_ms')
+##plt.plot(t, phi_dm, '--', label='V_md')
+#plt.title('Potentials')
+#plt.xlabel('time [s]')
+#plt.legend(loc='upper right')
 
 f3 = plt.figure(3)
 plt.plot(t, E_Na_s, label='E_Na')
@@ -167,7 +164,7 @@ plt.plot(t, E_Cl_s, label='E_Cl')
 plt.plot(t, E_Ca_s, label='E_Ca')
 plt.title('Reversal potentials soma')
 plt.xlabel('time [s]')
-plt.legend()
+plt.legend(loc='upper right')
 
 f4 = plt.figure(4)
 plt.plot(t, E_Na_d, label='E_Na')
@@ -176,7 +173,7 @@ plt.plot(t, E_Cl_d, label='E_Cl')
 plt.plot(t, E_Ca_d, label='E_Ca')
 plt.title('Reversal potentials dendrite')
 plt.xlabel('time [s]')
-plt.legend()
+plt.legend(loc='upper right')
 
 f5 = plt.figure(5)
 plt.plot(t, Na_si, label='Na_si')
@@ -185,7 +182,7 @@ plt.plot(t, Na_di, label='Na_di')
 plt.plot(t, Na_de, label='Na_de')
 plt.title('Sodium concentrations')
 plt.xlabel('time [s]')
-plt.legend()
+plt.legend(loc='upper right')
 
 f6 = plt.figure(6)
 plt.plot(t, K_si, label='K_si')
@@ -194,7 +191,7 @@ plt.plot(t, K_di, label='K_di')
 plt.plot(t, K_de, label='K_de')
 plt.title('Potassium concentrations')
 plt.xlabel('time [s]')
-plt.legend()
+plt.legend(loc='upper right')
 
 f7 = plt.figure(7)
 plt.plot(t, Cl_si, label='Cl_si')
@@ -203,7 +200,7 @@ plt.plot(t, Cl_di, label='Cl_di')
 plt.plot(t, Cl_de, label='Cl_de')
 plt.title('Chloride concentrations')
 plt.xlabel('time [s]')
-plt.legend()
+plt.legend(loc='upper right')
 
 f8 = plt.figure(8)
 plt.plot(t, Ca_si, label='Ca_si')
@@ -212,11 +209,11 @@ plt.plot(t, Ca_di, label='Ca_di')
 plt.plot(t, Ca_de, label='Ca_de')
 plt.title('Calsium concentrations')
 plt.xlabel('time [s]')
-plt.legend()
+plt.legend(loc='upper right')
 
 f9 = plt.figure(9)
-plt.plot(t, q)
-plt.title('q')
+plt.plot(t, z)
+plt.title('z')
 plt.xlabel('time [s]')
 
 f9 = plt.figure(11)
@@ -224,11 +221,95 @@ plt.plot(t, s)
 plt.title('s')
 plt.xlabel('time [s]')
 
+f9 = plt.figure(15)
+plt.plot(t, q)
+plt.title('q')
+plt.xlabel('time [s]')
+
 f10 = plt.figure(10)
 plt.plot(t, my_cell.free_Ca_di*1e6, label='free_Ca_di')
 plt.title('Free Calsium concentrations')
 plt.xlabel('time [s]')
 plt.ylabel('free [Ca]_i [nM]')
-plt.legend()
+plt.legend(loc='upper right')
+
+my_leak = LeakyCell(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+
+phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_leak.membrane_potentials()
+
+E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = my_leak.reversal_potentials()
+
+j_Na_s_leak = my_leak.j_Na_s(phi_sm, E_Na_s)
+j_K_s_leak = my_leak.j_K_s(phi_sm, E_K_s)
+j_Cl_s_leak = my_leak.j_Cl_s(phi_sm, E_Cl_s)
+j_Na_d_leak = my_leak.j_Na_d(phi_dm, E_Na_d)
+j_K_d_leak = my_leak.j_K_d(phi_dm, E_K_d)
+j_Cl_d_leak = my_leak.j_Cl_d(phi_dm, E_Cl_d)
+
+my_pump = Pump(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+
+phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_pump.membrane_potentials()
+
+E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = my_pump.reversal_potentials()
+
+j_Na_s_pump = 3*my_pump.j_pump(Na_si, K_se)
+j_Na_d_pump = 3*my_pump.j_pump(Na_di, K_de)
+j_K_s_pump = -2*my_pump.j_pump(Na_si, K_se)
+j_K_d_pump = -2*my_pump.j_pump(Na_di, K_de)
+
+j_Cl_d_kcc2 = my_pump.j_kcc2(K_di, K_de, Cl_di, Cl_de)
+j_Cl_d_nkcc1 = 2*my_pump.j_nkcc1(Na_di, Na_de, K_di, K_de, Cl_di, Cl_de)
+
+my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q, z)
+
+phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
+
+E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = my_cell.reversal_potentials()
+
+j_Na_s = my_cell.g_Na * my_cell.m_inf(phi_sm)**2 * my_cell.h * (phi_sm - E_Na_s) / (my_cell.F*my_cell.Z_Na)
+j_K_DR_s = my_cell.g_DR * my_cell.n * (phi_sm - E_K_s) / (my_cell.F*my_cell.Z_K)
+j_K_AHP_d = my_cell.g_AHP * my_cell.q * (phi_dm - E_K_d) / (my_cell.F*my_cell.Z_K)
+#j_K_C_d = my_cell.g_C * my_cell.c * my_cell.chi() * (phi_dm - E_K_d) / (my_cell.F*my_cell.Z_K)
+j_Ca_d = my_cell.g_Ca * my_cell.s**2 * my_cell.z * (phi_dm - E_Ca_d) / (my_cell.F*my_cell.Z_Ca)
+
+f11 = plt.figure(12)
+plt.plot(t, j_Na_s_leak, label='Na leak soma')
+plt.plot(t, j_K_s_leak, label='K leak soma')
+plt.plot(t, j_Cl_s_leak, label='Cl leak soma')
+plt.plot(t, j_Na_d_leak, label='Na leak dend')
+plt.plot(t, j_K_d_leak, label='K leak dend')
+plt.plot(t, j_Cl_d_leak, label='Cl leak dend')
+plt.title('Leak fluxes')
+plt.xlabel('time [s]')
+plt.legend(loc='upper right')
+
+f11 = plt.figure(13)
+plt.plot(t, j_Na_s_pump, label='Na pump soma')
+plt.plot(t, j_K_s_pump, label='K pump soma')
+plt.plot(t, j_Na_d_pump, label='Na pump dend')
+plt.plot(t, j_K_d_pump, label='K pump dend')
+plt.title('Pump fluxes')
+plt.xlabel('time [s]')
+plt.legend(loc='upper right')
+
+f12 = plt.figure(14)
+plt.plot(t, j_Na_s, label='Na soma')
+plt.plot(t, j_K_DR_s, label='K DR soma')
+plt.plot(t, j_K_AHP_d, label='K AHP dend')
+#plt.plot(t, j_K_C_d, label='K C dend')
+plt.plot(t, j_Ca_d, label='Ca dend')
+plt.title('Fluxes')
+plt.xlabel('time [s]')
+plt.legend(loc='upper right')
+
+f16 = plt.figure(16)
+plt.plot(t, j_Cl_d_leak, label='Cl leak dend')
+plt.plot(t, j_Cl_d_kcc2, label='Cl kcc2 dend')
+plt.plot(t, j_Cl_d_nkcc1, label='Cl nkcc1 dend')
+plt.title('Cl fluxes')
+plt.xlabel('time [s]')
+plt.legend(loc='upper right')
 
 plt.show()
+
+
