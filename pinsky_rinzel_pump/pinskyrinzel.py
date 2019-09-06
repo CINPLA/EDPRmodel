@@ -185,6 +185,6 @@ class PinskyRinzel(Pump):
         dsdt = self.alpha_s(phi_dm)*(1.0-self.s) - self.beta_s(phi_dm)*self.s
         dcdt = self.alpha_c(phi_dm)*(1.0-self.c) - self.beta_c(phi_dm)*self.c
         dqdt = self.alpha_q()*(1.0-self.q) - self.beta_q()*self.q
-        dzdt = (self.z_inf(phi_dm) - self.z)#/0.1
+        dzdt = (self.z_inf(phi_dm) - self.z)#/0.3
         
         return dndt, dhdt, dsdt, dcdt, dqdt, dzdt
