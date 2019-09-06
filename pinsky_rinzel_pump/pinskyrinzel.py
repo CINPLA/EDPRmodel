@@ -30,7 +30,7 @@ class PinskyRinzel(Pump):
     dkdt(): calculate dk/dt for all ion species k and rest charges
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca0_si, Ca0_di, n, h, s, c, q):
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca0_si, Ca0_di, n, h, s, c, q, z):
 
         Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
 
@@ -41,6 +41,7 @@ class PinskyRinzel(Pump):
         self.s = s
         self.c = c
         self.q = q
+        self.z = z
 
         # conductances [S * m**-2]
         self.g_Na = 300.
@@ -126,6 +127,11 @@ class PinskyRinzel(Pump):
     def m_inf(self, phi_sm):
         return self.alpha_m(phi_sm) / (self.alpha_m(phi_sm) + self.beta_m(phi_sm))
 
+    def z_inf(self, phi_dm):
+        phi_half = -30
+        k = 1
+        return 1/(1 + np.exp((phi_dm*1000 - phi_half)/k))
+
     def j_Na_s(self, phi_sm, E_Na_s):
         j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
             + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s) / (self.F*self.Z_Na)
@@ -143,7 +149,7 @@ class PinskyRinzel(Pump):
         return j
 
     def j_Ca_d(self, phi_dm, E_Ca_d):
-        j = self.g_Ca * self.s**2 * (phi_dm - E_Ca_d) / (self.F*self.Z_Ca)
+        j = self.g_Ca * self.s**2 * self.z * (phi_dm - E_Ca_d) / (self.F*self.Z_Ca)
         return j
 
     def dkdt(self):
@@ -178,5 +184,6 @@ class PinskyRinzel(Pump):
         dsdt = self.alpha_s(phi_dm)*(1.0-self.s) - self.beta_s(phi_dm)*self.s
         dcdt = self.alpha_c(phi_dm)*(1.0-self.c) - self.beta_c(phi_dm)*self.c
         dqdt = self.alpha_q()*(1.0-self.q) - self.beta_q()*self.q
+        dzdt = (self.z_inf(phi_dm) - self.z)
         
-        return dndt, dhdt, dsdt, dcdt, dqdt
+        return dndt, dhdt, dsdt, dcdt, dqdt, dzdt

@@ -34,6 +34,7 @@ h0 = 0.999
 s0 = 0.009
 c0 = 0.007
 q0 = 0.01
+z0 = 1
 
 I_stim = 5e-12 # [A]
 
@@ -42,27 +43,27 @@ alpha = (12.5/12.5)*2.0
 
 def dkdt(t,k):
 
-    Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q = k
+    Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q, z = k
 
-    my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q)
+    my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q, z)
 
     dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
         dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
-    dndt, dhdt, dsdt, dcdt, dqdt = my_cell.dmdt()
+    dndt, dhdt, dsdt, dcdt, dqdt, dzdt = my_cell.dmdt()
 
     #if t > 1:
     dresdt_si, dresdt_se = somatic_injection_current(my_cell, dresdt_si, dresdt_se, 1.0, I_stim)
 
     return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
         dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, \
-        dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt
+        dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt, dzdt
 
 start_time = time.time()
 t_span = (0, 2)
 
-k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0]
+k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0, z0]
 
-init_cell = PinskyRinzel(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, alpha, Ca_si0, Ca_di0, n0, h0, s0, c0, q0)
+init_cell = PinskyRinzel(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, alpha, Ca_si0, Ca_di0, n0, h0, s0, c0, q0, z0)
 
 ###
 sigma_i = (init_cell.conductivity_k(init_cell.D_Na, init_cell.Z_Na, init_cell.lamda_i, init_cell.Na_si, init_cell.Na_di) \
@@ -86,9 +87,9 @@ print("Initial values")
 print("----------------------------")
 print("initial total charge(C): ", q_si + q_se + q_di + q_de)
 print("Q_si (C):", q_si)
-print("Q_se (C): ", q_se)
+print("Q_se (C):", q_se)
 print("Q_di (C):", q_di)
-print("Q_de (C): ", q_de)
+print("Q_de (C):", q_de)
 print("----------------------------")
 print("potentials [mV]")
 print('phi_si: ', round(phi_si*1000))
@@ -109,10 +110,10 @@ print("----------------------------")
 
 sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
 
-Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q = sol.y
+Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, n, h, s, c, q, z = sol.y
 t = sol.t
 
-my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q)
+my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q, z)
 
 phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
 
@@ -128,9 +129,9 @@ print("Final values")
 print("----------------------------")
 print("total charge at the end (C): ", q_si + q_se + q_di + q_de)
 print("Q_si (C):", q_si)
-print("Q_se (C): ", q_se)
+print("Q_se (C):", q_se)
 print("Q_di (C):", q_di)
-print("Q_de (C): ", q_de)
+print("Q_de (C):", q_de)
 
 print("----------------------------")
 print('elapsed time: ', round(time.time() - start_time, 1), 'seconds')
