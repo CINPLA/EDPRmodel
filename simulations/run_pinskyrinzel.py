@@ -3,43 +3,61 @@ from pinsky_rinzel_pump.somatic_injection_current import *
 
 T = 309.14
 
-Na_si0 = 18.
-Na_se0 = 160.
-K_si0 = 100.
-K_se0 = 6.
-Cl_si0 = 8.
-Cl_se0 = 100.
-Ca_si0 = 100*100e-6
+#Na_si0 = 17.5
+#Na_se0 = 139.
+#K_si0 = 98.7
+#K_se0 = 4.6
+#Cl_si0 = 7.2
+#Cl_se0 = 130.6
+#Ca_si0 = 0.01
+#Ca_se0 = 1.1
+
+Na_si0 = 18
+Na_se0 = 139
+K_si0 = 99
+K_se0 = 5
+Cl_si0 = 7
+Cl_se0 = 131
+Ca_si0 = 0.01
 Ca_se0 = 1.1
 
-Na_di0 = 18.
-Na_de0 = 160.
-K_di0 = 100.
-K_de0 = 6.
-Cl_di0 = 8.
-Cl_de0 = 100.
-Ca_di0 = 100*100e-6
+Na_di0 = 18
+Na_de0 = 139
+K_di0 = 99
+K_de0 = 5
+Cl_di0 = 7
+Cl_de0 = 131
+Ca_di0 = 0.01
 Ca_de0 = 1.1
 
-res_i = -65e-3*3e-2*616e-12/(1437e-18*9.648e4)
-res_e = -65e-3*3e-2*616e-12/(718.5e-18*9.648e4)
+res_i = -66e-3*3e-2*616e-12/(1437e-18*9.648e4)
+res_e = -66e-3*3e-2*616e-12/(718.5e-18*9.648e4)
+#res_i = -65.78e-3*3e-2*616e-12/(1437e-18*9.648e4)
+#res_e = -65.78e-3*3e-2*616e-12/(718.5e-18*9.648e4)
 
 k_res_si0 = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0 + res_i
 k_res_se0 = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0 - res_e
 k_res_di0 = Cl_di0 - Na_di0 - K_di0 - 2*Ca_di0 + res_i
 k_res_de0 = Cl_de0 - Na_de0 - K_de0 - 2*Ca_de0 - res_e
 
-n0 = 0.001
+n0 = 0.0004
 h0 = 0.999
-s0 = 0.009
-c0 = 0.007
-q0 = 0.01
-z0 = 1
+s0 = 0.008
+c0 = 0.006
+q0 = 0.011
+z0 = 1.0
+#n0 = 0.00039
+#h0 = 0.99907
+#s0 = 0.00848
+#c0 = 0.00628
+#q0 = 0.01139
+#z0 = 1.0
 
-I_stim = 5e-12 # [A]
+#I_stim = 35e-12 # [A]
+#alpha = (2.6/12.5)*2.0
 
+I_stim = 20e-12 # [A]
 alpha = (12.5/12.5)*2.0
-#alpha = (2.5/12.5)*2.0
 
 def dkdt(t,k):
 
@@ -47,19 +65,23 @@ def dkdt(t,k):
 
     my_cell = PinskyRinzel(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q, z)
 
+    #my_cell.g_Ca = 119
+    my_cell.g_Ca = 118
+
     dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
         dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
     dndt, dhdt, dsdt, dcdt, dqdt, dzdt = my_cell.dmdt()
 
-    #if t > 1:
-    dresdt_si, dresdt_se = somatic_injection_current(my_cell, dresdt_si, dresdt_se, 1.0, I_stim)
+    #if t < 3:
+    #dresdt_si, dresdt_se = somatic_injection_current(my_cell, dresdt_si, dresdt_se, 1.0, I_stim)
+    dKdt_si, dKdt_se = somatic_injection_current(my_cell, dKdt_si, dKdt_se, 1.0, I_stim)
 
     return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
         dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, \
         dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt, dzdt
 
 start_time = time.time()
-t_span = (0, 2)
+t_span = (0, 10)
 
 k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0, z0]
 
@@ -135,6 +157,22 @@ print("Q_de (C):", q_de)
 
 print("----------------------------")
 print('elapsed time: ', round(time.time() - start_time, 1), 'seconds')
+print("----------------------------")
+
+print('Na_se:', round(Na_se[-1],2))
+print('Na_si:', round(Na_si[-1],2))
+print('K_se:', round(K_se[-1],2))
+print('K_si:', round(K_si[-1],2))
+print('Cl_se:', round(Cl_se[-1],2))
+print('Cl_si:', round(Cl_si[-1],2))
+print('Ca_se:', round(Ca_se[-1],2))
+print('Ca_si:', round(Ca_si[-1],2))
+print('n:', round(n[-1],5))
+print('h:', round(h[-1],5))
+print('s:', round(s[-1],5))
+print('c:', round(c[-1],5))
+print('q:', round(q[-1],5))
+print('z:', round(z[-1],5))
 
 f1 = plt.figure(1)
 plt.plot(t, phi_sm*1000, '-', label='V_s')
@@ -144,16 +182,16 @@ plt.xlabel('time [s]')
 plt.ylabel('[mV]')
 plt.legend(loc='upper right')
 
-f2 = plt.figure(2)
-#plt.plot(t, phi_si, '-', label='V_si')
-plt.plot(t, phi_se, '-', label='V_se')
-#plt.plot(t, phi_di, '-', label='V_di')
-#plt.plot(t, np.ones(len(t))*phi_de, '-', label='V_de')
-#plt.plot(t, phi_sm, '--', label='V_ms')
-#plt.plot(t, phi_dm, '--', label='V_md')
-plt.title('Potentials')
-plt.xlabel('time [s]')
-plt.legend(loc='upper right')
+#f2 = plt.figure(2)
+##plt.plot(t, phi_si, '-', label='V_si')
+#plt.plot(t, phi_se, '-', label='V_se')
+##plt.plot(t, phi_di, '-', label='V_di')
+##plt.plot(t, np.ones(len(t))*phi_de, '-', label='V_de')
+##plt.plot(t, phi_sm, '--', label='V_ms')
+##plt.plot(t, phi_dm, '--', label='V_md')
+#plt.title('Potentials')
+#plt.xlabel('time [s]')
+#plt.legend(loc='upper right')
 
 f3 = plt.figure(3)
 plt.plot(t, E_Na_s, label='E_Na')
