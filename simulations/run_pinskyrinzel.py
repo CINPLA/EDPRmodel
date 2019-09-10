@@ -4,42 +4,43 @@ from pinsky_rinzel_pump.somatic_injection_current import *
 T = 309.14
 
 Na_si0 = 18.
-Na_se0 = 160.
-K_si0 = 100.
-K_se0 = 6.
-Cl_si0 = 8.
-Cl_se0 = 100.
-Ca_si0 = 100*100e-6
+Na_se0 = 139.
+K_si0 = 99.
+K_se0 = 5.
+Cl_si0 = 7.
+Cl_se0 = 131.
+Ca_si0 = 0.01
 Ca_se0 = 1.1
 
 Na_di0 = 18.
-Na_de0 = 160.
-K_di0 = 100.
-K_de0 = 6.
-Cl_di0 = 8.
-Cl_de0 = 100.
-Ca_di0 = 100*100e-6
+Na_de0 = 139.
+K_di0 = 99.
+K_de0 = 5.
+Cl_di0 = 7.
+Cl_de0 = 131.
+Ca_di0 = 0.01
 Ca_de0 = 1.1
 
-res_i = -65e-3*3e-2*616e-12/(1437e-18*9.648e4)
-res_e = -65e-3*3e-2*616e-12/(718.5e-18*9.648e4)
+res_i = -66e-3*3e-2*616e-12/(1437e-18*9.648e4)
+res_e = -66e-3*3e-2*616e-12/(718.5e-18*9.648e4)
 
 k_res_si0 = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0 + res_i
 k_res_se0 = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0 - res_e
 k_res_di0 = Cl_di0 - Na_di0 - K_di0 - 2*Ca_di0 + res_i
 k_res_de0 = Cl_de0 - Na_de0 - K_de0 - 2*Ca_de0 - res_e
 
-n0 = 0.001
+n0 = 0.0004
 h0 = 0.999
-s0 = 0.009
-c0 = 0.007
-q0 = 0.01
-z0 = 1
+s0 = 0.008
+c0 = 0.006
+q0 = 0.011
+z0 = 1.0
 
-I_stim = 5e-12 # [A]
+#I_stim = 35e-12 # [A]
+#alpha = (2.6/12.5)*2.0
 
+I_stim = 40e-12 # [A]
 alpha = (12.5/12.5)*2.0
-#alpha = (2.5/12.5)*2.0
 
 def dkdt(t,k):
 
@@ -59,7 +60,7 @@ def dkdt(t,k):
         dresdt_si, dresdt_se, dresdt_di, dresdt_de, dndt, dhdt, dsdt, dcdt, dqdt, dzdt
 
 start_time = time.time()
-t_span = (0, 2)
+t_span = (0, 1)
 
 k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si0, k_res_se0, k_res_di0, k_res_de0, n0, h0, s0, c0, q0, z0]
 
