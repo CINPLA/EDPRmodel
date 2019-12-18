@@ -1,11 +1,6 @@
 import numpy as np
-from math import fsum
-from scipy.integrate import solve_ivp
-import matplotlib.pyplot as plt
-import time
 import warnings
 warnings.filterwarnings("error")
-from .somatic_injection_current import *
 
 class LeakyCell(): 
     """A two plus two compartment neuron model with Na+, K+, and Cl- leak currents.
@@ -32,7 +27,7 @@ class LeakyCell():
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha):
         
-        # temperature [K]
+        # absolute temperature [K]
         self.T = T
 
         # ion concentraions [mol * m**-3]
@@ -52,18 +47,16 @@ class LeakyCell():
         self.Ca_se = Ca_se 
         self.Ca_di = Ca_di 
         self.Ca_de = Ca_de
+        self.free_Ca_si = 0.01*Ca_si
+        self.free_Ca_di = 0.01*Ca_di
         self.k_res_si = k_res_si
         self.k_res_se = k_res_se
         self.k_res_di = k_res_di
         self.k_res_de = k_res_de
-        self.free_Ca_si = 0.01*Ca_si
-        self.free_Ca_di = 0.01*Ca_di
 
         # membrane capacitance [F * m**-2]
-        self.C_sm = 3e-2 # Pinsky and Rinzel, 1994
-        self.C_dm = 3e-2 # Pinsky and Rinzel, 1994
-#        self.C_sm = 1e-2 # Wei et al. 2014
-#        self.C_dm = 1e-2 # Wei et al. 2014
+        self.C_sm = 3e-2 # Pinsky and Rinzel 1994
+        self.C_dm = 3e-2 # Pinsky and Rinzel 1994
        
         # volumes and areas
         self.alpha = alpha
@@ -73,8 +66,8 @@ class LeakyCell():
         self.A_e = self.A_i/2.         # [m**2]
         self.V_si = 1437e-18           # [m**3]
         self.V_di = 1437e-18           # [m**3]
-        self.V_se = 718.5e-18           # [m**3]
-        self.V_de = 718.5e-18           # [m**3]
+        self.V_se = 718.5e-18          # [m**3]
+        self.V_de = 718.5e-18          # [m**3]
         self.dx = 667e-6               # [m]
 
         # diffusion constants [m**2 s**-1]
@@ -148,7 +141,6 @@ class LeakyCell():
 
     def nernst_potential(self, Z, k_i, k_e):
         E = self.R*self.T / (Z*self.F) * np.log(k_e / k_i)
-        #E = 26.64e-3 * np.log(k_e / k_i) / Z
         return E
 
     def reversal_potentials(self):
@@ -250,167 +242,3 @@ class LeakyCell():
         dresdt_de = 0
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de
-
-if __name__ == "__main__":
-
-    T = 309.14
-    alpha = 1.
-
-    Na_si0 = 15.
-    Na_se0 = 145.
-    K_si0 = 100.
-    K_se0 = 3.
-    Cl_si0 = 5.
-    Cl_se0 = 134.
-    Ca_si0 = 0.001
-    Ca_se0 = 1.1
-
-    Na_di0 = 20.
-    Na_de0 = 150.
-    K_di0 = 100.
-    K_de0 = 3.
-    Cl_di0 = 5.
-    Cl_de0 = 134.
-    Ca_di0 = 0.001
-    Ca_de0 = 1.1
-
-    k_res_si = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0
-    k_res_se = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0
-    k_res_di = Cl_di0 - Na_di0 - K_di0 - 2*Ca_di0
-    k_res_de = Cl_de0 - Na_de0 - K_de0 - 2*Ca_de0
-
-    def dkdt(t,k):
-
-        Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = k
-
-        my_cell = LeakyCell(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
-
-        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
-
-        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
-            dCadt_si, dCadt_se, dCadt_di, dCadt_de
-    
-    start_time = time.time()
-    t_span = (0, 1)
-
-    k0 = [Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0]
-
-    init_cell = LeakyCell(T, Na_si0, Na_se0, Na_di0, Na_de0, K_si0, K_se0, K_di0, K_de0, Cl_si0, Cl_se0, Cl_di0, Cl_de0, Ca_si0, Ca_se0, Ca_di0, Ca_de0, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
-
-    phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = init_cell.membrane_potentials()
-    
-    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = init_cell.reversal_potentials()
-
-    q_si = init_cell.total_charge([init_cell.Na_si, init_cell.K_si, init_cell.Cl_si, init_cell.Ca_si], init_cell.k_res_si, init_cell.V_si)
-    q_se = init_cell.total_charge([init_cell.Na_se, init_cell.K_se, init_cell.Cl_se, init_cell.Ca_se], init_cell.k_res_se, init_cell.V_se)        
-    q_di = init_cell.total_charge([init_cell.Na_di, init_cell.K_di, init_cell.Cl_di, init_cell.Ca_di], init_cell.k_res_di, init_cell.V_di)
-    q_de = init_cell.total_charge([init_cell.Na_de, init_cell.K_de, init_cell.Cl_de, init_cell.Ca_de], init_cell.k_res_de, init_cell.V_de)
-    print("----------------------------")
-    print("Initial values")
-    print("----------------------------")
-    print("initial total charge(C): ", q_si + q_se + q_di + q_de)
-    print("Q_si (C):", q_si)
-    print("Q_se (C): ", q_se)
-    print("Q_di (C):", q_di)
-    print("Q_de (C): ", q_de)
-    print("----------------------------")
-    print('phi_si: ', phi_si)
-    print('phi_se: ', phi_se)
-    print('phi_di: ', phi_di)
-    print('phi_de: ', phi_de)
-    print('phi_sm: ', phi_sm)
-    print('phi_dm: ', phi_dm)
-    print('E_Na_s: ', E_Na_s)
-    print('E_Na_d: ', E_Na_d)
-    print('E_K_s: ', E_K_s)
-    print('E_K_d: ', E_K_d)
-    print('E_Cl_s: ', E_Cl_s)
-    print('E_Cl_d: ', E_Cl_d)
-    print('E_Ca_s: ', E_Ca_s)
-    print('E_Ca_d: ', E_Ca_d)
-    print("----------------------------")
-
-    sol = solve_ivp(dkdt, t_span, k0, max_step=1e-4)
-
-    Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = sol.y
-    t = sol.t
-
-    my_cell = LeakyCell(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
-    
-    phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm = my_cell.membrane_potentials()
-    
-    E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = my_cell.reversal_potentials()
-
-    q_si = my_cell.total_charge([my_cell.Na_si[-1], my_cell.K_si[-1], my_cell.Cl_si[-1], my_cell.Ca_si[-1]], my_cell.k_res_si, my_cell.V_si)
-    q_se = my_cell.total_charge([my_cell.Na_se[-1], my_cell.K_se[-1], my_cell.Cl_se[-1], my_cell.Ca_se[-1]], my_cell.k_res_se, my_cell.V_se)        
-    q_di = my_cell.total_charge([my_cell.Na_di[-1], my_cell.K_di[-1], my_cell.Cl_di[-1], my_cell.Ca_di[-1]], my_cell.k_res_di, my_cell.V_di)
-    q_de = my_cell.total_charge([my_cell.Na_de[-1], my_cell.K_de[-1], my_cell.Cl_de[-1], my_cell.Ca_de[-1]], my_cell.k_res_de, my_cell.V_de)
-    print("Final values")
-    print("----------------------------")
-    print("total charge at the end (C): ", q_si + q_se + q_di + q_de)
-    print("Q_si (C):", q_si)
-    print("Q_se (C): ", q_se)
-    print("Q_di (C):", q_di)
-    print("Q_de (C): ", q_de)
-
-    print("----------------------------")
-    print('elapsed time: ', round(time.time() - start_time, 1), 'seconds')
-
-    plt.plot(t, phi_sm, '-', label='Vs')
-    plt.plot(t, phi_dm, '-', label='Vd')
-    plt.title('Membrane potentials')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, E_Na_s, label='E_Na')
-    plt.plot(t, E_K_s, label='E_K')
-    plt.plot(t, E_Cl_s, label='E_Cl')
-    plt.title('Reversal potentials soma')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, E_Na_d, label='E_Na')
-    plt.plot(t, E_K_d, label='E_K')
-    plt.plot(t, E_Cl_d, label='E_Cl')
-    plt.title('Reversal potentials dendrite')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, Na_si, label='Na_si')
-    plt.plot(t, Na_se, label='Na_se')
-    plt.plot(t, Na_di, label='Na_di')
-    plt.plot(t, Na_de, label='Na_de')
-    plt.title('Sodium concentrations')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, K_si, label='K_si')
-    plt.plot(t, K_se, label='K_se')
-    plt.plot(t, K_di, label='K_di')
-    plt.plot(t, K_de, label='K_de')
-    plt.title('Potassium concentrations')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, Cl_si, label='Cl_si')
-    plt.plot(t, Cl_se, label='Cl_se')
-    plt.plot(t, Cl_di, label='Cl_di')
-    plt.plot(t, Cl_de, label='Cl_de')
-    plt.title('Chloride concentrations')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()
-
-    plt.plot(t, Ca_si, label='Ca_si')
-    plt.plot(t, Ca_se, label='Ca_se')
-    plt.plot(t, Ca_di, label='Ca_di')
-    plt.plot(t, Ca_de, label='Ca_de')
-    plt.title('Calsium concentrations')
-    plt.xlabel('time [s]')
-    plt.legend()
-    plt.show()

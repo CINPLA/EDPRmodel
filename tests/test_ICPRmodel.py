@@ -1,8 +1,8 @@
 import pytest
-from pinsky_rinzel_pump.pinskyrinzel import *
-from pinsky_rinzel_pump.somatic_injection_current import *
+from ICPRmodel.ICPRmodel import *
+from ICPRmodel.somatic_injection_current import *
 
-def test_pinskyrinzel():
+def test_ICPRmodel():
     """Tests that no charge disappear.
        Tests charge symmetry."""
    
@@ -46,7 +46,7 @@ def test_pinskyrinzel():
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q, z = k
 
-        my_cell = PinskyRinzel(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
+        my_cell = ICPRmodel(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
             Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q, z)
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
@@ -65,7 +65,7 @@ def test_pinskyrinzel():
 
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, n, h, s, c, q, z = sol.y
     
-    test_cell = PinskyRinzel(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
+    test_cell = ICPRmodel(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
         Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca_si0, Ca_di0, n, h, s, c, q, z)
 
     q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1]], k_res_si, test_cell.V_si)

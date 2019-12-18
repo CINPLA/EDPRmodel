@@ -1,12 +1,8 @@
 from .pump import Pump
-from .somatic_injection_current import *
-from scipy.integrate import solve_ivp
-import matplotlib.pyplot as plt
 import numpy as np
-import time
 
-class PinskyRinzel(Pump):
-    """ A two plus two compartment cell model with Pinsky-Rinzel mechanisms and pumps.
+class ICPRmodel(Pump):
+    """ Ion conserving Pinsky Rinzel model.
 
     Attributes
     ----------
@@ -16,18 +12,21 @@ class PinskyRinzel(Pump):
     -------
     constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, \
         Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, \
-        Ca0_si, Ca0_di, n, h, s, c, q)
+        Ca0_si, Ca0_di, n, h, s, c, q, z)
     alpha_m(phi_sm), beta_m(phi_sm), alpha_h(phi_sm), beta_h(phi_sm),
     alpha_n(phi_sm), beta_n(phi_sm), alpha_s(phi_dm), beta_s(phi_dm),
     alpha_c(phi_dm), beta_c(phi_dm), chi(), alpha_q(), beta_q(),
-    m_inf(phi_sm): compute the rate coefficients of the gating particles
+    m_inf(phi_sm), z_inf(phi_dm): compute the rate coefficients of the gating particles
     j_Na_s(phi_sm, E_Na_s): compute the Na+ flux across the somatic membrane
     j_K_s(phi_sm, E_K_s): compute the K+ flux across the somatic membrane
     j_Cl_s(phi_sm, E_Cl_s): compute the Cl- flux across the somatic membrane
+    j_Ca_s(phi_sm, E_Ca_s): compute the Ca2+ flux across the somatic membrane
     j_Na_d(phi_dm, E_Na_d): compute the Na+ flux across the dendritic membrane
     j_K_d(phi_dm, E_K_d): compute the K+ flux across the dendritic membrane
     j_Cl_d(phi_dm, E_Cl_d): compute the Cl- flux across the dendritic membrane
+    j_Ca_d(phi_dm, E_Ca_d): compute the Ca2+ flux across the dendritic membrane
     dkdt(): calculate dk/dt for all ion species k and rest charges
+    dmdt(): calculate dm/dt for all gating particles m
     """
 
     def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca0_si, Ca0_di, n, h, s, c, q, z):
@@ -49,6 +48,9 @@ class PinskyRinzel(Pump):
         self.g_Ca = 118.
         self.g_AHP = 8.
         self.g_C = 150.
+
+        # Calcium decay rate [s**-1]
+        self.tau = 75.
 
     def alpha_m(self, phi_sm):
         phi_1 = phi_sm*1e3 + 46.9
@@ -116,7 +118,7 @@ class PinskyRinzel(Pump):
         return beta
 
     def chi(self):
-        return min((self.free_Ca_di-99.8e-6)/2.5e-4, 1.0) # abs??
+        return min((self.free_Ca_di-99.8e-6)/2.5e-4, 1.0)
 
     def alpha_q(self):
         return min(2e4*(self.free_Ca_di-99.8e-6), 10.0) 
@@ -134,12 +136,22 @@ class PinskyRinzel(Pump):
 
     def j_Na_s(self, phi_sm, E_Na_s):
         j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
-            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s) / (self.F*self.Z_Na)
+            + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s) / (self.F*self.Z_Na)\
+            - 2*self.tau * (self.Ca_si - self.Ca0_si)*self.V_si/self.A_s
         return j
 
     def j_K_s(self, phi_sm, E_K_s):
         j = Pump.j_K_s(self, phi_sm, E_K_s) \
             + self.g_DR * self.n * (phi_sm - E_K_s) / (self.F*self.Z_K)
+        return j
+    
+    def j_Ca_s(self):
+        j =  self.tau * (self.Ca_si - self.Ca0_si)*self.V_si/self.A_s
+        return j
+    
+    def j_Na_d(self, phi_dm, E_Na_d):
+        j = Pump.j_Na_d(self, phi_dm, E_Na_d) \
+            - 2*self.tau * (self.Ca_di - self.Ca0_di)*self.V_di/self.A_d
         return j
 
     def j_K_d(self, phi_dm, E_K_d):
@@ -149,7 +161,8 @@ class PinskyRinzel(Pump):
         return j
 
     def j_Ca_d(self, phi_dm, E_Ca_d):
-        j = self.g_Ca * self.s**2 * self.z * (phi_dm - E_Ca_d) / (self.F*self.Z_Ca)
+        j = self.g_Ca * self.s**2 * self.z * (phi_dm - E_Ca_d) / (self.F*self.Z_Ca) \
+            + self.tau * (self.Ca_di - self.Ca0_di)*self.V_di/self.A_d
         return j
 
     def dkdt(self):
@@ -158,20 +171,13 @@ class PinskyRinzel(Pump):
         E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = Pump.reversal_potentials(self)
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = Pump.dkdt(self)
 
-        V_fr_s = self.V_si/self.V_se
-        V_fr_d = self.V_di/self.V_de 
-
+        j_Ca_sm = self.j_Ca_s()
         j_Ca_dm = self.j_Ca_d(phi_dm, E_Ca_d)
 
-        dNadt_si = dNadt_si + 2*75.*(self.Ca_si - self.Ca0_si)
-        dNadt_se = dNadt_se - 2*75.*V_fr_s*(self.Ca_si - self.Ca0_si)
-        dNadt_di = dNadt_di + 2*75.*(self.Ca_di - self.Ca0_di)
-        dNadt_de = dNadt_de - 2*75.*V_fr_d*(self.Ca_di - self.Ca0_di)
-
-        dCadt_si = dCadt_si - 75.*(self.Ca_si - self.Ca0_si)
-        dCadt_se = dCadt_se + V_fr_s*75.*(self.Ca_si - self.Ca0_si)
-        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di) - 75.*(self.Ca_di - self.Ca0_di)
-        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de) + V_fr_d*75.*(self.Ca_di - self.Ca0_di)
+        dCadt_si = dCadt_si - j_Ca_sm*(self.A_s / self.V_si)
+        dCadt_se = dCadt_se + j_Ca_sm*(self.A_s / self.V_se)
+        dCadt_di = dCadt_di - j_Ca_dm*(self.A_d / self.V_di)
+        dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de)
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
             dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de
