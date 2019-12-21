@@ -1,6 +1,6 @@
 import pytest
-from pinsky_rinzel_pump.leakycell import *
-from pinsky_rinzel_pump.somatic_injection_current import *
+from ICPRmodel.leakycell import *
+from ICPRmodel.somatic_injection_current import *
 
 def test_modules():
     """Tests modules in LeakyCell."""

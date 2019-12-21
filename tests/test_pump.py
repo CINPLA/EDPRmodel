@@ -1,6 +1,6 @@
 import pytest
-from pinsky_rinzel_pump.pump import *
-from pinsky_rinzel_pump.somatic_injection_current import *
+from ICPRmodel.pump import *
+from ICPRmodel.somatic_injection_current import *
 
 def test_pump():
     """Tests that no charge disappear.
