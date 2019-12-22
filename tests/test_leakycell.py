@@ -1,4 +1,5 @@
 import pytest
+from scipy.integrate import solve_ivp
 from ICPRmodel.leakycell import *
 from ICPRmodel.somatic_injection_current import *
 
