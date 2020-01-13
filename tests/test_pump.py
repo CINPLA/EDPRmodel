@@ -1,7 +1,7 @@
 import pytest
 from scipy.integrate import solve_ivp
-from ECPRmodel.pump import *
-from ECPRmodel.somatic_injection_current import *
+from EDPRmodel.pump import *
+from EDPRmodel.somatic_injection_current import *
 
 def test_pump():
     """Tests that no charge disappear.
