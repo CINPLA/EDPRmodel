@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/CINPLA/ICPRmodel.svg?token=ysPymD2Us3kpyo2SF9i6&branch=master)](https://travis-ci.com/CINPLA/ICPRmodel)
+[![Build Status](https://travis-ci.com/CINPLA/EDPRmodel.svg?token=ysPymD2Us3kpyo2SF9i6&branch=master)](https://travis-ci.com/CINPLA/EDPRmodel)
 
 # EDPRmodel
 
@@ -15,6 +15,6 @@ python setup.py install
 ```
 ## Run simulations
 
-The simulations folder includes example code on how to run simulations. 
+The simulations folder includes example code showing how to run simulations. 
 To reproduce the results presented in Sætra et al. 202X, see 
 [https://github.com/CINPLA/ICPRmodel_analysis](https://github.com/CINPLA/ICPRmodel_analysis).
