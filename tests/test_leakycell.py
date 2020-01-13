@@ -1,7 +1,7 @@
 import pytest
 from scipy.integrate import solve_ivp
-from ICPRmodel.leakycell import *
-from ICPRmodel.somatic_injection_current import *
+from ECPRmodel.leakycell import *
+from ECPRmodel.somatic_injection_current import *
 
 def test_modules():
     """Tests modules in LeakyCell."""
