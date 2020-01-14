@@ -12,6 +12,7 @@ notifications:
 install:
   - pip3 install scipy
   - pip3 install matplotlib
+  - python setup.py install
 
 script:
   - python3 -m pytest
