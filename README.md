@@ -13,6 +13,8 @@ command in the terminal:
 ```bash
 python setup.py install
 ```
+The code was developed for Python 3.6.
+
 ## Run simulations
 
 The simulations folder includes example code showing how to run simulations. 
