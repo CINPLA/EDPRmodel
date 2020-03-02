@@ -293,7 +293,7 @@ def test_charge_symmetry_w_diffusion():
     Ca_di0 = 0.0011
     Ca_de0 = 1.1
 
-    X_si = Na_si0 + K_si0 - Cl_si0 - 2*Ca_si0
+    X_si = Na_si0 + K_si0 - Cl_si0 + 2*Ca_si0
     X_se = Na_se0 + K_se0 - Cl_se0 + 2*Ca_se0
     X_di = Na_di0 + K_di0 - Cl_di0 + 2*Ca_di0
     X_de = Na_de0 + K_de0 - Cl_de0 + 2*Ca_de0
