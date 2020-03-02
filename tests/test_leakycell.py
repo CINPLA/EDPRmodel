@@ -13,13 +13,13 @@ def test_modules():
     assert round(test_cell.conductivity_k(test_cell.D_Na, test_cell.Z_Na, 3.2, test_cell.Na_si, test_cell.Na_di), 4) == 0.0078
 
     assert test_cell.total_charge( \
-        [test_cell.Na_si, test_cell.K_si, test_cell.Cl_si, 0], 0, 1e-1) == -9648
+        [test_cell.Na_si, test_cell.K_si, test_cell.Cl_si, 0, 0], 1e-1) == -9648
     
     assert test_cell.total_charge( \
-        [10, 10, 20, 0], 0, 10) == 0 
+        [10, 10, 20, 0, 0], 10) == 0 
 
     assert test_cell.total_charge( \
-        [10, 10, 10, 5], -20, 10) == 0 
+        [10, 10, 10, 5, 20], 10) == 0 
 
 def test_charge_conservation():
     """Tests that no charge disappear."""
@@ -46,20 +46,20 @@ def test_charge_conservation():
     Ca_di0 = 20*50e-6
     Ca_de0 = 1.1
 
-    k_res_si = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)
-    k_res_se = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)
-    k_res_di = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)
-    k_res_de = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)
+    X_si = Na_si0 + K_si0 - Cl_si0 + 2*Ca_si0
+    X_se = Na_se0 + K_se0 - Cl_se0 + 2*Ca_se0
+    X_di = Na_di0 + K_di0 - Cl_di0 + 2*Ca_di0
+    X_de = Na_de0 + K_de0 - Cl_de0 + 2*Ca_de0
 
     def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = k
 
         my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
-            Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+            Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
-            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
+            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dXdt_si, dXdt_se, dXdt_di, dXdt_de = my_cell.dkdt()
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
             dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de
@@ -72,12 +72,12 @@ def test_charge_conservation():
     t = sol.t
     
     test_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
-        Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+        Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
-    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1]], k_res_si, test_cell.V_si)
-    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1]], k_res_se, test_cell.V_se)        
-    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1]], k_res_di, test_cell.V_di)
-    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1]], k_res_de, test_cell.V_de)
+    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1], test_cell.X_si[-1]], test_cell.V_si)
+    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1], test_cell.X_se[-1]], test_cell.V_se)        
+    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1], test_cell.X_di[-1]], test_cell.V_di)
+    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1], test_cell.X_de[-1]], test_cell.V_de)
 
     total_q = abs(q_si + q_se + q_di + q_de)
 
@@ -108,20 +108,20 @@ def test_charge_conservation_w_diffusion():
     Ca_di0 = 20*50e-6
     Ca_de0 = 1.1
 
-    k_res_si = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)
-    k_res_se = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)
-    k_res_di = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)
-    k_res_de = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)
+    X_si = Na_si0 + K_si0 - Cl_si0 + 2*Ca_si0
+    X_se = Na_se0 + K_se0 - Cl_se0 + 2*Ca_se0
+    X_di = Na_di0 + K_di0 - Cl_di0 + 2*Ca_di0
+    X_de = Na_de0 + K_de0 - Cl_de0 + 2*Ca_de0
 
     def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = k
 
         my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
-            Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+            Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
-            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
+            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dXdt_si, dXdt_se, dXdt_di, dXdt_de = my_cell.dkdt()
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, \
             dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de
@@ -134,12 +134,12 @@ def test_charge_conservation_w_diffusion():
     t = sol.t
     
     test_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
-        Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+        Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
-    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1]], k_res_si, test_cell.V_si)
-    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1]], k_res_se, test_cell.V_se)        
-    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1]], k_res_di, test_cell.V_di)
-    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1]], k_res_de, test_cell.V_de)
+    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1], test_cell.X_si[-1]], test_cell.V_si)
+    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1], test_cell.X_se[-1]], test_cell.V_se)        
+    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1], test_cell.X_di[-1]], test_cell.V_di)
+    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1], test_cell.X_de[-1]], test_cell.V_de)
 
     total_q = abs(q_si + q_se + q_di + q_de)
 
@@ -170,10 +170,10 @@ def test_charge_conservation_with_K_stimulus():
     Ca_di0 = 20*50e-6
     Ca_de0 = 1.1
 
-    k_res_si = Cl_si0 - (Na_si0 + K_si0 + 2*Ca_si0)
-    k_res_se = Cl_se0 - (Na_se0 + K_se0 + 2*Ca_se0)
-    k_res_di = Cl_di0 - (Na_di0 + K_di0 + 2*Ca_di0)
-    k_res_de = Cl_de0 - (Na_de0 + K_de0 + 2*Ca_de0)
+    X_si = Na_si0 + K_si0 - Cl_si0 + 2*Ca_si0
+    X_se = Na_se0 + K_se0 - Cl_se0 + 2*Ca_se0
+    X_di = Na_di0 + K_di0 - Cl_di0 + 2*Ca_di0
+    X_de = Na_de0 + K_de0 - Cl_de0 + 2*Ca_de0
 
     I_stim = 1e-12 # [A]
 
@@ -182,10 +182,10 @@ def test_charge_conservation_with_K_stimulus():
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = k
 
         my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
-            Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+            Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
         dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
-            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
+            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dXdt_si, dXdt_se, dXdt_di, dXdt_de = my_cell.dkdt()
 
         dKdt_si, dKdt_se = somatic_injection_current(my_cell, dKdt_si, dKdt_se, my_cell.Z_K, I_stim)
 
@@ -200,12 +200,12 @@ def test_charge_conservation_with_K_stimulus():
     t = sol.t
     
     test_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, \
-        Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+        Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
-    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1]], k_res_si, test_cell.V_si)
-    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1]], k_res_se, test_cell.V_se)        
-    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1]], k_res_di, test_cell.V_di)
-    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1]], k_res_de, test_cell.V_de)
+    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1], test_cell.X_si[-1]], test_cell.V_si)
+    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1], test_cell.X_se[-1]], test_cell.V_se)        
+    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1], test_cell.X_di[-1]], test_cell.V_di)
+    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1], test_cell.X_de[-1]], test_cell.V_de)
 
     total_q = abs(q_si + q_se + q_di + q_de)
 
@@ -236,18 +236,18 @@ def test_charge_symmetry():
     Ca_di0 = 0.001
     Ca_de0 = 1.1
 
-    k_res_si = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0
-    k_res_se = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0
-    k_res_di = Cl_di0 - Na_di0 - K_di0 - 2*Ca_di0
-    k_res_de = Cl_de0 - Na_de0 - K_de0 - 2*Ca_de0
+    X_si = Na_si0 + K_si0 - Cl_si0 + 2*Ca_si0
+    X_se = Na_se0 + K_se0 - Cl_se0 + 2*Ca_se0
+    X_di = Na_di0 + K_di0 - Cl_di0 + 2*Ca_di0
+    X_de = Na_de0 + K_de0 - Cl_de0 + 2*Ca_de0
 
     def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = k
 
-        my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+        my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
-        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
+        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dXdt_si, dXdt_se, dXdt_di, dXdt_de = my_cell.dkdt()
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de
 
@@ -258,12 +258,12 @@ def test_charge_symmetry():
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = sol.y
     t = sol.t
     
-    test_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+    test_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
-    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1]], k_res_si, test_cell.V_si)
-    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1]], k_res_se, test_cell.V_se)        
-    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1]], k_res_di, test_cell.V_di)
-    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1]], k_res_de, test_cell.V_de)
+    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1], test_cell.X_si[-1]], test_cell.V_si)
+    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1], test_cell.X_se[-1]], test_cell.V_se)        
+    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1], test_cell.X_di[-1]], test_cell.V_di)
+    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1], test_cell.X_de[-1]], test_cell.V_de)
 
     assert abs(q_si + q_se) < EPS
     assert abs(q_di + q_de) < EPS
@@ -293,18 +293,18 @@ def test_charge_symmetry_w_diffusion():
     Ca_di0 = 0.0011
     Ca_de0 = 1.1
 
-    k_res_si = Cl_si0 - Na_si0 - K_si0 - 2*Ca_si0
-    k_res_se = Cl_se0 - Na_se0 - K_se0 - 2*Ca_se0
-    k_res_di = Cl_di0 - Na_di0 - K_di0 - 2*Ca_di0
-    k_res_de = Cl_de0 - Na_de0 - K_de0 - 2*Ca_de0
+    X_si = Na_si0 + K_si0 - Cl_si0 - 2*Ca_si0
+    X_se = Na_se0 + K_se0 - Cl_se0 + 2*Ca_se0
+    X_di = Na_di0 + K_di0 - Cl_di0 + 2*Ca_di0
+    X_de = Na_de0 + K_de0 - Cl_de0 + 2*Ca_de0
 
     def dkdt(t,k):
 
         Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = k
 
-        my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+        my_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
-        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = my_cell.dkdt()
+        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dXdt_si, dXdt_se, dXdt_di, dXdt_de = my_cell.dkdt()
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de
 
@@ -315,12 +315,12 @@ def test_charge_symmetry_w_diffusion():
     Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de = sol.y
     t = sol.t
     
-    test_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+    test_cell = LeakyCell(279.3, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
-    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1]], k_res_si, test_cell.V_si)
-    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1]], k_res_se, test_cell.V_se)        
-    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1]], k_res_di, test_cell.V_di)
-    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1]], k_res_de, test_cell.V_de)
+    q_si = test_cell.total_charge([test_cell.Na_si[-1], test_cell.K_si[-1], test_cell.Cl_si[-1], test_cell.Ca_si[-1], test_cell.X_si[-1]], test_cell.V_si)
+    q_se = test_cell.total_charge([test_cell.Na_se[-1], test_cell.K_se[-1], test_cell.Cl_se[-1], test_cell.Ca_se[-1], test_cell.X_se[-1]], test_cell.V_se)        
+    q_di = test_cell.total_charge([test_cell.Na_di[-1], test_cell.K_di[-1], test_cell.Cl_di[-1], test_cell.Ca_di[-1], test_cell.X_di[-1]], test_cell.V_di)
+    q_de = test_cell.total_charge([test_cell.Na_de[-1], test_cell.K_de[-1], test_cell.Cl_de[-1], test_cell.Ca_de[-1], test_cell.X_de[-1]], test_cell.V_de)
 
     assert abs(q_si + q_se) < EPS
     assert abs(q_di + q_de) < EPS
