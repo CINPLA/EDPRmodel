@@ -2,7 +2,7 @@ from .pump import Pump
 import numpy as np
 
 class EDPRmodel(Pump):
-    """ Electrodiffusice Pinsky Rinzel model.
+    """ Electrodiffusive Pinsky-Rinzel model.
 
     Attributes
     ----------
@@ -11,7 +11,7 @@ class EDPRmodel(Pump):
     Methods
     -------
     constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, \
-        Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, \
+        Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha, \
         Ca0_si, Ca0_di, n, h, s, c, q, z)
     alpha_m(phi_sm), beta_m(phi_sm), alpha_h(phi_sm), beta_h(phi_sm),
     alpha_n(phi_sm), beta_n(phi_sm), alpha_s(phi_dm), beta_s(phi_dm),
@@ -25,13 +25,13 @@ class EDPRmodel(Pump):
     j_K_d(phi_dm, E_K_d): compute the K+ flux across the dendritic membrane
     j_Cl_d(phi_dm, E_Cl_d): compute the Cl- flux across the dendritic membrane
     j_Ca_d(phi_dm, E_Ca_d): compute the Ca2+ flux across the dendritic membrane
-    dkdt(): calculate dk/dt for all ion species k and rest charges
+    dkdt(): calculate dk/dt for all ion species k and Xt charges
     dmdt(): calculate dm/dt for all gating particles m
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha, Ca0_si, Ca0_di, n, h, s, c, q, z):
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha, Ca0_si, Ca0_di, n, h, s, c, q, z):
 
-        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+        Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
         self.Ca0_si = Ca0_si
         self.Ca0_di = Ca0_di
@@ -169,7 +169,7 @@ class EDPRmodel(Pump):
 
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = Pump.membrane_potentials(self)
         E_Na_s, E_Na_d, E_K_s, E_K_d, E_Cl_s, E_Cl_d, E_Ca_s, E_Ca_d = Pump.reversal_potentials(self)
-        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de = Pump.dkdt(self)
+        dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dXdt_si, dXdt_se, dXdt_di, dXdt_de = Pump.dkdt(self)
 
         j_Ca_sm = self.j_Ca_s()
         j_Ca_dm = self.j_Ca_d(phi_dm, E_Ca_d)
@@ -180,7 +180,7 @@ class EDPRmodel(Pump):
         dCadt_de = dCadt_de + j_Ca_dm*(self.A_d / self.V_de)
 
         return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, \
-            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de
+            dCadt_si, dCadt_se, dCadt_di, dCadt_de, dXdt_si, dXdt_se, dXdt_di, dXdt_de
 
     def dmdt(self):
         phi_si, phi_se, phi_di, phi_de, phi_sm, phi_dm  = Pump.membrane_potentials(self)

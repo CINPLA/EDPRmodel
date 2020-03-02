@@ -8,7 +8,7 @@ class LeakyCell():
     Methods
     -------
     constructor(T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, \
-        Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha)
+        Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
     j_Na_s(phi_sm, E_Na_s): compute the Na+ flux across the somatic membrane
     j_K_s(phi_sm, E_K_s): compute the K+ flux across the somatic membrane
     j_Cl_s(phi_sm, E_Cl_s): compute the Cl- flux across the somatic membrane
@@ -18,14 +18,14 @@ class LeakyCell():
     j_k_diff(D_k, tortuosity, k_s, k_d): compute the axial diffusion flux of ion k
     j_k_drift(D_k, Z_k, tortuosity, k_s, k_d, phi_s, phi_d): compute the axial drift flux of ion k
     conductivity_k(D_k, Z_k, tortuosity, k_s, k_d): compute axial conductivity of ion k
-    total_charge(k, k_res, V): calculate the total charge within volume V
+    total_charge(k, V): calculate the total charge within volume V
     nernst_potential(Z, k_i, k_e): calculate the reversal potential of ion k
     reversal_potentials(): calculate the reversal potentials of all ion species
     membrane_potentials(): calculate the membrane potentials
     dkdt(): calculate dk/dt for all ion species k
     """
 
-    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, k_res_si, k_res_se, k_res_di, k_res_de, alpha):
+    def __init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha):
         
         # absolute temperature [K]
         self.T = T
@@ -49,10 +49,10 @@ class LeakyCell():
         self.Ca_de = Ca_de
         self.free_Ca_si = 0.01*Ca_si
         self.free_Ca_di = 0.01*Ca_di
-        self.k_res_si = k_res_si
-        self.k_res_se = k_res_se
-        self.k_res_di = k_res_di
-        self.k_res_de = k_res_de
+        self.X_si = X_si
+        self.X_se = X_se
+        self.X_di = X_di
+        self.X_de = X_de
 
         # membrane capacitance [F * m**-2]
         self.C_sm = 3e-2 # Pinsky and Rinzel 1994
@@ -85,6 +85,7 @@ class LeakyCell():
         self.Z_K = 1.
         self.Z_Cl = -1.
         self.Z_Ca = 2.
+        self.Z_X = -1.
 
         # constants
         self.F = 9.648e4    # [C * mol**-1]
@@ -131,12 +132,12 @@ class LeakyCell():
         sigma = self.F**2 * D_k * Z_k**2 * (k_d + k_s) / (2 * self.R * self.T * tortuosity**2)
         return sigma
 
-    def total_charge(self, k, k_res, V):
-        Z_k = [self.Z_Na, self.Z_K, self.Z_Cl, self.Z_Ca]
+    def total_charge(self, k, V):
+        Z_k = [self.Z_Na, self.Z_K, self.Z_Cl, self.Z_Ca, self.Z_X]
         q = 0.0
-        for i in range(0, 4):
+        for i in range(0, 5):
             q += Z_k[i]*k[i]
-        q = self.F*(q + k_res)*V
+        q = q*self.F*V
         return q
 
     def nernst_potential(self, Z, k_i, k_e):
@@ -173,8 +174,8 @@ class LeakyCell():
             + self.conductivity_k(self.D_Cl, self.Z_Cl, self.lamda_e, self.Cl_se, self.Cl_de) \
             + self.conductivity_k(self.D_Ca, self.Z_Ca, self.lamda_e, self.Ca_se, self.Ca_de)
 
-        q_di = self.total_charge([self.Na_di, self.K_di, self.Cl_di, self.Ca_di], self.k_res_di, self.V_di)
-        q_si = self.total_charge([self.Na_si, self.K_si, self.Cl_si, self.Ca_si], self.k_res_si, self.V_si)
+        q_di = self.total_charge([self.Na_di, self.K_di, self.Cl_di, self.Ca_di, self.X_di], self.V_di)
+        q_si = self.total_charge([self.Na_si, self.K_si, self.Cl_si, self.Ca_si, self.X_si], self.V_si)
 
         phi_di = q_di / (self.C_dm * self.A_d)
         phi_se = (phi_di - self.dx * I_i_diff / sigma_i - self.A_e * self.dx * I_e_diff / (self.A_i * sigma_i) - q_si / (self.C_sm * self.A_s)) / (1 + self.A_e*sigma_e/(self.A_i*sigma_i))
@@ -236,9 +237,9 @@ class LeakyCell():
         dCadt_se = - j_Ca_e*(self.A_e / self.V_se)
         dCadt_de = j_Ca_e*(self.A_e / self.V_de)
 
-        dresdt_si = 0
-        dresdt_di = 0
-        dresdt_se = 0
-        dresdt_de = 0
+        dXdt_si = 0
+        dXdt_di = 0
+        dXdt_se = 0
+        dXdt_de = 0
 
-        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dresdt_si, dresdt_se, dresdt_di, dresdt_de
+        return dNadt_si, dNadt_se, dNadt_di, dNadt_de, dKdt_si, dKdt_se, dKdt_di, dKdt_de, dCldt_si, dCldt_se, dCldt_di, dCldt_de, dCadt_si, dCadt_se, dCadt_di, dCadt_de, dXdt_si, dXdt_se, dXdt_di, dXdt_de
