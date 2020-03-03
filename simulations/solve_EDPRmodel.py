@@ -6,6 +6,19 @@ from EDPRmodel.somatic_injection_current import *
 from scipy.integrate import solve_ivp
 
 def solve_EDPRmodel(t_dur, alpha, I_stim, stim_start, stim_end):
+    """
+    Solves the EDPR model using the solve_ivp function from scipy.
+
+    Arguments:
+        t_dur (float): duration of simulation [s]
+        alpha (float): coupling strength
+        I_stim (float): stimulus current [s]
+        stim_start (float): time of stimulus onset [s]
+        stim_end (float): time of stimulus offset [s]
+
+    Returns:
+        sol: solution from solve_ivp
+    """
 
     T = 309.14 # temperature [K]
 
