@@ -24,7 +24,7 @@ def test_modules():
 def test_charge_conservation():
     """Tests that no charge disappear."""
     
-    EPS = 1e-14
+    EPS = 1e-18
 
     alpha = 0.5
 
@@ -88,7 +88,7 @@ def test_charge_conservation_w_diffusion():
 
     alpha = 0.5
 
-    EPS = 1e-14
+    EPS = 1e-18
 
     Na_si0 = 12.
     Na_se0 = 142.
@@ -150,7 +150,7 @@ def test_charge_conservation_with_K_stimulus():
  
     alpha = 1.0
 
-    EPS = 1e-14
+    EPS = 1e-18
 
     Na_si0 = 15.
     Na_se0 = 145.
@@ -216,7 +216,7 @@ def test_charge_symmetry():
 
     alpha = 0.5
 
-    EPS = 1e-14
+    EPS = 1e-18
 
     Na_si0 = 15.
     Na_se0 = 145.
@@ -273,7 +273,7 @@ def test_charge_symmetry_w_diffusion():
 
     alpha = 0.5
 
-    EPS = 1e-14
+    EPS = 1e-18
 
     Na_si0 = 12.
     Na_se0 = 142.

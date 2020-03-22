@@ -9,7 +9,7 @@ def test_pump():
     
     alpha = 0.5
 
-    EPS = 1e-14
+    EPS = 1e-18
 
     Na_si0 = 18.
     Na_se0 = 144.

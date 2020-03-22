@@ -9,7 +9,7 @@ def test_EDPRmodel():
    
     alpha = 1.0
     
-    EPS = 1e-14
+    EPS = 1e-18
 
     Na_si0 = 18.
     Na_se0 = 144.
