@@ -19,4 +19,4 @@ The code was developed for Python 3.6.
 
 The simulations folder includes example code showing how to run simulations. 
 To reproduce the results presented in Sætra et al. 202X, see 
-[https://github.com/CINPLA/ICPRmodel_analysis](https://github.com/CINPLA/ICPRmodel_analysis).
+[https://github.com/CINPLA/ICPRmodel_analysis](https://github.com/CINPLA/EDPRmodel_analysis).
