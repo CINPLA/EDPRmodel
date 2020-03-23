@@ -33,7 +33,7 @@ class EDPRmodel(Pump):
 
         Pump.__init__(self, T, Na_si, Na_se, Na_di, Na_de, K_si, K_se, K_di, K_de, Cl_si, Cl_se, Cl_di, Cl_de, Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
 
-        self.Ca0_si = Ca0_si
+        self.Ca0_si = Ca0_si # basal Ca concentration
         self.Ca0_di = Ca0_di
         self.n = n
         self.h = h
