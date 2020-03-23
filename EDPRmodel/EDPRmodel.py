@@ -50,7 +50,7 @@ class EDPRmodel(Pump):
         self.g_C = 150.
 
         # Calcium decay rate [s**-1]
-        self.tau = 75.
+        self.U_Cadec = 75.
 
     def alpha_m(self, phi_sm):
         phi_1 = phi_sm*1e3 + 46.9
@@ -137,7 +137,7 @@ class EDPRmodel(Pump):
     def j_Na_s(self, phi_sm, E_Na_s):
         j = Pump.j_Na_s(self, phi_sm, E_Na_s) \
             + self.g_Na * self.m_inf(phi_sm)**2 * self.h * (phi_sm - E_Na_s) / (self.F*self.Z_Na)\
-            - 2*self.tau * (self.Ca_si - self.Ca0_si)*self.V_si/self.A_s
+            - 2*self.U_Cadec * (self.Ca_si - self.Ca0_si)*self.V_si/self.A_s
         return j
 
     def j_K_s(self, phi_sm, E_K_s):
@@ -146,12 +146,12 @@ class EDPRmodel(Pump):
         return j
     
     def j_Ca_s(self):
-        j =  self.tau * (self.Ca_si - self.Ca0_si)*self.V_si/self.A_s
+        j =  self.U_Cadec * (self.Ca_si - self.Ca0_si)*self.V_si/self.A_s
         return j
     
     def j_Na_d(self, phi_dm, E_Na_d):
         j = Pump.j_Na_d(self, phi_dm, E_Na_d) \
-            - 2*self.tau * (self.Ca_di - self.Ca0_di)*self.V_di/self.A_d
+            - 2*self.U_Cadec * (self.Ca_di - self.Ca0_di)*self.V_di/self.A_d
         return j
 
     def j_K_d(self, phi_dm, E_K_d):
@@ -162,7 +162,7 @@ class EDPRmodel(Pump):
 
     def j_Ca_d(self, phi_dm, E_Ca_d):
         j = self.g_Ca * self.s**2 * self.z * (phi_dm - E_Ca_d) / (self.F*self.Z_Ca) \
-            + self.tau * (self.Ca_di - self.Ca0_di)*self.V_di/self.A_d
+            + self.U_Cadec * (self.Ca_di - self.Ca0_di)*self.V_di/self.A_d
         return j
 
     def dkdt(self):
