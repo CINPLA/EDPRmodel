@@ -4,7 +4,8 @@
 
 EDPRmodel is an implementation of the KNP continuity equations for a
 one-dimensional system containing two plus two compartments.
-The model is presented in Sætra et al. 202X: [link]
+The model is presented in Sætra et al. 2020: [An electrodiffusive, ion conserving Pinsky-Rinzel model with homeostatic mechanisms](https://doi.org/10.1371/journal.pcbi.1007661
+).
 
 ## Installation 
 
@@ -18,5 +19,5 @@ The code was developed for Python 3.6.
 ## Run simulations
 
 The simulations folder includes example code showing how to run simulations. 
-To reproduce the results presented in Sætra et al. 202X, see 
-[https://github.com/CINPLA/ICPRmodel_analysis](https://github.com/CINPLA/EDPRmodel_analysis).
+To reproduce the results presented in Sætra et al. 2020, see 
+[https://github.com/CINPLA/EDPRmodel_analysis](https://github.com/CINPLA/EDPRmodel_analysis).
