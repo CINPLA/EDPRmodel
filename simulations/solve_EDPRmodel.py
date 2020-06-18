@@ -12,7 +12,7 @@ def solve_EDPRmodel(t_dur, alpha, I_stim, stim_start, stim_end):
     Arguments:
         t_dur (float): duration of simulation [s]
         alpha (float): coupling strength
-        I_stim (float): stimulus current [s]
+        I_stim (float): stimulus current [A]
         stim_start (float): time of stimulus onset [s]
         stim_end (float): time of stimulus offset [s]
 
