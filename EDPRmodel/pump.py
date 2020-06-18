@@ -14,7 +14,7 @@ class Pump(LeakyCell):
         Ca_si, Ca_se, Ca_di, Ca_de, X_si, X_se, X_di, X_de, alpha)
     j_pump(Na_i, K_e): compute the Na+/K+ pump flux across given membrane
     j_kcc2(K_i, K_e, Cl_i, Cl_e): compute the K+/Cl- co-transporter flux across given membrane
-    j_nkcc1(self, Na_i, Na_e, K_i, K_e, Cl_i, Cl_e): compute the Na+/K+/Cl- co-transporter flux across given membrane
+    j_nkcc1(Na_i, Na_e, K_i, K_e, Cl_i, Cl_e): compute the Na+/K+/Cl- co-transporter flux across given membrane
     j_Na_s(phi_sm, E_Na_s): compute the Na+ flux across the somatic membrane
     j_K_s(phi_sm, E_K_s): compute the K+ flux across the somatic membrane
     j_Cl_s(phi_sm, E_Cl_s): compute the Cl- flux across the somatic membrane
