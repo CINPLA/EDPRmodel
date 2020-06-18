@@ -25,7 +25,7 @@ class EDPRmodel(Pump):
     j_K_d(phi_dm, E_K_d): compute the K+ flux across the dendritic membrane
     j_Cl_d(phi_dm, E_Cl_d): compute the Cl- flux across the dendritic membrane
     j_Ca_d(phi_dm, E_Ca_d): compute the Ca2+ flux across the dendritic membrane
-    dkdt(): calculate dk/dt for all ion species k and Xt charges
+    dkdt(): calculate dk/dt for all ion species k
     dmdt(): calculate dm/dt for all gating particles m
     """
 
