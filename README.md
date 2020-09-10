@@ -4,7 +4,7 @@
 
 EDPRmodel is an implementation of the KNP continuity equations for a
 one-dimensional system containing two plus two compartments.
-The model is presented in Sætra et al. 2020: [An electrodiffusive, ion conserving Pinsky-Rinzel model with homeostatic mechanisms](https://doi.org/10.1371/journal.pcbi.1007661
+The model is presented in Sætra et al., *PLoS Computational Biology*, 16(4), e1007661 (2020): [An electrodiffusive, ion conserving Pinsky-Rinzel model with homeostatic mechanisms](https://doi.org/10.1371/journal.pcbi.1007661
 ).
 
 ## Installation 
