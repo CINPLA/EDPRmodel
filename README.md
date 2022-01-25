@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/CINPLA/EDPRmodel.svg?token=ysPymD2Us3kpyo2SF9i6&branch=master)](https://travis-ci.com/CINPLA/EDPRmodel)
+[![Build Status](https://app.travis-ci.com/CINPLA/EDPRmodel.svg?branch=master)](https://app.travis-ci.com/CINPLA/EDPRmodel)
 
 # EDPRmodel
 
